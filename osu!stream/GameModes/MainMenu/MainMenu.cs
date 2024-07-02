@@ -206,7 +206,7 @@ namespace osum.GameModes.MainMenu
                         if (AudioEngine.Music != null) AudioEngine.Music.Play();
                     }, 2950);
                 }, true);
-
+#if !DIST
                 if (GameBase.Config.GetValue("firstrun", true))
                 {
                     Notification notification = new Notification(
@@ -227,6 +227,7 @@ namespace osum.GameModes.MainMenu
 
                     GameBase.Scheduler.Add(delegate { GameBase.Notify(notification); }, initial_display + 1500);
                 }
+#endif
             }
             else
             {
