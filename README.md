@@ -8,12 +8,22 @@ tap, slide, hold and spin to a **beat you can feel!**
 
 ## Status
 
-This is basically a “finished” project to me. For more information on the state and history of osu!stream, here's some further reading:
+This is basically a “finished” project for peppy, but I plan on putting more life back into it.
 
-- Read my [blog post](https://blog.ppy.sh/osu-stream-2020-release/) about the final release
-- ["osu!stream" on osu! wiki](https://osu.ppy.sh/help/wiki/osu!stream)
-- Visit the [App Store](https://apps.apple.com/us/app/osu-stream/id436952197) or [Play Store](https://play.google.com/store/apps/details?id=sh.ppy.osustream) listing page
+#### Plans
+- Bring leaderboards back.
+- Implement a beatmap submission system.
+- Multiplayer (likely a 1v1 system.)
+- Clean up README.md a lot more.
 
+
+## History
+For more information on the history of osu!stream, here's some further reading:
+- Read peppy's [blog post](https://blog.ppy.sh/osu-stream-2020-release/) about the final release.
+- ["osu!stream" on osu! wiki](https://osu.ppy.sh/help/wiki/osu!stream).
+- Visit the [App Store](https://apps.apple.com/us/app/osu-stream/id436952197) or [Play Store](https://play.google.com/store/apps/details?id=sh.ppy.osustream) listing page.
+
+## Contributions
 While contributions are welcomed I likely won’t have time to review anything too large. There are some exceptions listed below, mostly which fall under the clean-up umbrella – trying to get things into a good final state:
 
 - Bring code standards in line with osu!lazer (using the same DotSettings configuration).
