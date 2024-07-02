@@ -12,7 +12,8 @@ This is basically a “finished” project for peppy, but I plan on putting more
 
 #### Plans
 - Bring leaderboards back.
-- Implement a beatmap submission system.
+- Custom Beatmap support.
+- Implement a (suedo) beatmap submission system.
 - Multiplayer (likely a 1v1 system.)
 - Clean up README.md a lot more.
 
