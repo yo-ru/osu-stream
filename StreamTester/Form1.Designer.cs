@@ -333,6 +333,7 @@ namespace StreamTester
             this.checkBoxAnalysis.Text = "Run Map Analysis";
             this.toolTip1.SetToolTip(this.checkBoxAnalysis, "Woot pooting overlap finding awesome.");
             this.checkBoxAnalysis.UseVisualStyleBackColor = true;
+            this.checkBoxAnalysis.Visible = false;
             // 
             // statusStrip1
             // 
@@ -340,9 +341,9 @@ namespace StreamTester
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
             this.statusStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
-            this.statusStrip1.Location = new System.Drawing.Point(0, 479);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 477);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(642, 18);
+            this.statusStrip1.Size = new System.Drawing.Size(642, 20);
             this.statusStrip1.SizingGrip = false;
             this.statusStrip1.TabIndex = 13;
             this.statusStrip1.Text = "statusStrip1";
@@ -350,7 +351,7 @@ namespace StreamTester
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(276, 13);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(298, 15);
             this.toolStripStatusLabel1.Text = "for osu!stream mappers only. please do not distribute :)";
             // 
             // panelDrop
