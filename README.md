@@ -49,7 +49,7 @@ I recommend playing on the [app store](https://apps.apple.com/us/app/osu-stream/
 #### iOS
 The primary target of osu!stream is iOS. It should compile with relatively little effort via `osu!stream.sln`; tested via:
 - Visual Studio for Mac and Rider.
-- Visual Studio 2022 for Windows utilizing Xarmin "Pair with Mac" for build/deploy.
+- Visual Studio 2022 for Windows utilizing Xamarin "Pair with Mac" for build/deploy.
 
 #### Android
 The seoncdary target of osu!stream is Android. It should compile with relatively little effort via `osu!stream_android.sln`.
