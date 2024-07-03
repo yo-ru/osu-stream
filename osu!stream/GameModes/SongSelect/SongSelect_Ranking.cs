@@ -5,11 +5,13 @@ using OpenTK;
 using OpenTK.Graphics;
 using osum.Audio;
 using osum.GameModes.Play;
+using osum.GameModes.Results;
 using osum.GameplayElements.Scoring;
 using osum.Graphics.Sprites;
 using osum.Helpers;
 using osum.Libraries.NetLib;
 using osum.Localisation;
+using osum.UI;
 
 namespace osum.GameModes.SongSelect
 {
@@ -45,7 +47,7 @@ namespace osum.GameModes.SongSelect
 
             int period = 0;
 
-            rankingNetRequest = new StringNetRequest(@"https://osustream.com/score/retrieve.php", "POST",
+            rankingNetRequest = new StringNetRequest(@"http://localhost:5000/score/retrieve.php", "POST",
                 "udid=" + GameBase.Instance.DeviceIdentifier +
                 "&filename=" + NetRequest.UrlEncode(Path.GetFileName(Player.Beatmap.ContainerFilename)) +
                 "&period=" + period +
@@ -99,12 +101,6 @@ namespace osum.GameModes.SongSelect
                     rankingScores.Add(score);
                 }
 
-                var text = new pText("Leaderboards have been frozen. Thanks for participating!", 14, new Vector2(0, 25), Vector2.Zero, 1, true, Color4.White, true);
-                text.Origin = OriginTypes.Centre;
-                text.Field = FieldTypes.StandardSnapTopCentre;
-
-                rankingSpriteManager.Add(text);
-
                 int index = 0;
                 foreach (Score score in rankingScores)
                 {
@@ -122,6 +118,13 @@ namespace osum.GameModes.SongSelect
             }
             catch
             {
+                // we have a message from score sub
+                if (e == null && _result != null && _result.StartsWith("message:"))
+                {
+                    GameBase.Notify(_result.Replace("message:", string.Empty), delegate { Ranking_Hide(); });
+                    return;
+                }
+                // score sub response invalid
                 GameBase.Notify(LocalisationManager.GetString(OsuString.InternetFailed), delegate { Ranking_Hide(); });
             }
         }
