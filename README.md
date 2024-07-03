@@ -34,23 +34,30 @@ While contributions are welcomed I likely won’t have time to review anything t
 
 - Bring code standards in line with osu!lazer (using the same DotSettings configuration).
 - Doing something about the amount of compile-time `#if`s in the code (especially in `using` blocks).
-- Bringing the `arcade` branch up-to-date and potentially merging changes back into master.
+<!-- - Bringing the `arcade` branch up-to-date and potentially merging changes back into master. -->
 - Documentation of any kind.
 - Code quality improvements of any kind (as long as they can easily be reviewed and are guaranteed to not change behaviour). Keep individual PRs under 200 lines of change, optimally.
 
 ## Running
 
-If you are looking to play osu!stream, the [app store](https://apps.apple.com/us/app/osu-stream/id436952197) or [play store](https://play.google.com/store/apps/details?id=sh.ppy.osustream) release is the best way to consume it.
+Currently my fork is not stable enough to provide releases, nor am I comfortable providing any binaries until I get explicit permission from peppy.
+
+I recommend playing on the [app store](https://apps.apple.com/us/app/osu-stream/id436952197) or [play store](https://play.google.com/store/apps/details?id=sh.ppy.osustream) releases for the time being.
 
 ## Building
 
+#### iOS
 The primary target of osu!stream is iOS. It should compile with relatively little effort via `osu!stream.sln`; tested via:
 - Visual Studio for Mac and Rider.
 - Visual Studio 2022 for Windows utilizing Xarmin "Pair with Mac" for build/deploy.
 
-It will also run on desktop (tested only on windows) via `osu!stream_desktop.sln`. Note that the desktop release needs slightly differently packaged beatmaps (as it doesn't support `m4a` of released beatmaps).
+#### Android
+The seoncdary target of osu!stream is Android. It should compile with relatively little effort via `osu!stream_android.sln`.
 
-In addition, there is an [arcade branch](https://github.com/ppy/osu-stream/tree/arcade) for the osu!arcade specific release. This branch really needs to be merged up-to-date with the latest master.
+#### Windows
+It will also run on Windows via `osu!stream_desktop.sln`. Note that the desktop release needs slightly differently packaged beatmaps (as it doesn't support `m4a` of released beatmaps).
+
+<!-- In addition, there is an [arcade branch](https://github.com/ppy/osu-stream/tree/arcade) for the osu!arcade specific release. This branch really needs to be merged up-to-date with the latest master. -->
 
 ## Mapping
 
@@ -59,32 +66,33 @@ The process of mapping for osu!stream is still done via the osu! editor. I highl
 #### osu!stream tester
 osu!stream tester (`StreamTester`) can be utilized by mappers to test & generate osz2 files that will load into osu!stream. 
 
+<!--
 You can get a functional build of osu!stream tester by following these instructions:
 - Build using `ReleaseNoEncrpytion` build configuration.
 - Navigate to `osu-stream/StreamTester/bin/Release/`.
 - Create a new folder called `Beatmaps` (I will fix this in a future commit.)
 - Run `StreamTester.exe`.
+-->
 
 #### osu!stream mapper build
-You can get a mapper-centric build of osu!stream by following these instructions:
+A mapper build of osu!stream can be used to help test beatmaps more effectively, you gain some useful features such as:
+- Pause in Autoplay by clicking anywhere.
+- Enable/Disable Stream changes by pressing the footer in a levels' mode selector.
+
+<!-- You can get a mapper-centric build of osu!stream by following these instructions:
 - Build using `Debug` build configuration.
 - Navigate to `osu-stream/osu!stream/bin/Debug/`.
 - Run `osu!stream.exe`.
-- Launch the game, as the game launches, click on the Headphones, **ENABLED MAPPER MODE** will appear.
-- You can then use in-game mapper features:
-    - Pause in Autoplay by clicking anywhere.
-    - Enable/Disable Stream changes by pressing the footer in a levels' mode selector.
+- Launch the game, as the game launches, click on the Headphones, **ENABLED MAPPER MODE** will appear. -->
 
 #### A note from Yoru:
-I hope to reach out to peppy soon to request permission to release functional binaries of `osu!stream tester`; following that I will provide tutorials on:
+I will soon provide tutorials on:
 - Mapping for osu!stream.
 - Preparing an osu! map for osu!stream.
 - Utilizing `osu!stream tester` for testing on osu!stream.
-- Generating osz2 (beatmap) files for both desktop & iOS.
+- Generating osz2 (beatmap) files for both desktop, iOS, and Android.
 
-I will also, hopefully (with permission), release an osu!stream IPA (iOS app) that supports uploading custom beatmaps from your computer.
-
-Following that I will release a tool that automates the conversion of osu! maps to osu!stream maps.
+I will also soon release a tool that automates the conversion of osu! maps to osu!stream maps.
 
 ## Licence
 
