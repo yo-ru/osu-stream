@@ -10,12 +10,17 @@ tap, slide, hold and spin to a **beat you can feel!**
 
 This is basically a “finished” project for peppy, but I plan on putting more life back into it.
 
+#### Repositories
+- [yo-ru/osu-stream](yo-ru/osu-stream): a heavily modified version of osu!stream; aimed to bring osu!stream back to life with new QoL features.
+- [yo-ru/osu-stream-backend](yo-ru/osu-stream-backend): a recreation of osu!stream's backend server; handling authentication, leaderboards, score submission and much more.
+
 #### Plans
 - Bring leaderboards back.
 - Custom Beatmap support.
 - Implement a (suedo) beatmap submission system.
 - Multiplayer (likely a 1v1 system.)
 - Clean up README.md a lot more.
+- *and so so so, so much more....*
 
 
 ## History
