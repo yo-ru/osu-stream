@@ -1,6 +1,4 @@
 using System;
-using System.Security.Cryptography;
-using System.Text;
 using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics;
@@ -24,7 +22,6 @@ namespace osum.GameModes.Options
 {
     public class Options : GameMode
     {
-        private static readonly MD5CryptoServiceProvider fHasher = new MD5CryptoServiceProvider();
         private BackButton s_ButtonBack;
 
         private readonly SpriteManagerDraggable smd = new SpriteManagerDraggable
@@ -204,7 +201,7 @@ namespace osum.GameModes.Options
                 GameBase.GloballyDisableInput = false;
                 return;
             } 
-            string hash = ComputeMD5Hash(password);
+            string hash = CryptoHelper.GetMd5String(password);
 #endif
             StringNetRequest nr = new StringNetRequest("http://localhost:5000/auth/connect?udid="
                 + GameBase.Instance.DeviceIdentifier + "&username=" + username + "&cc=" + hash);
@@ -357,16 +354,6 @@ namespace osum.GameModes.Options
             throw new NotImplementedException();
         }
 #endif
-
-        private static string ComputeMD5Hash(string input)
-        {
-            using (MD5 md5 = MD5.Create())
-            {
-                byte[] byteHash = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
-                return BitConverter.ToString(byteHash).Replace("-", "").ToLower();
-            }
-        }
-
         internal static void DisplayFingerGuideDialog()
         {
             Notification notification = new Notification(LocalisationManager.GetString(OsuString.UseFingerGuides), LocalisationManager.GetString(OsuString.UseGuideFingers_Explanation),
