@@ -345,40 +345,16 @@ namespace osum.GameModes.Results
         private void doSubmission()
         {
             int deviceType = 0;
-#if iOS
+
             if (!GameBase.Mapper)
             {
+#if iOS
                 deviceType = (int)osum.Support.iPhone.HardwareDetection.Version;
-
-                //todo: for iOS5 twitter authentication, we need to double-check we actually have auth.
+#endif
                 string hash = GameBase.Config.GetValue<string>("hash", null);
-                if (hash == null)
-                {
-                    //todo: no twitter auth. are we not submitting anymore?
-                    return;
-                }
-                else if (hash.StartsWith("ios-"))
-                {
-                    hash = hash.Substring(4);
-                    using (ACAccountStore store = new ACAccountStore())
-                    {
-                        ACAccount account = store.FindAccount(hash);
-                        if (account != null)
-                        {
-                            //yay, i think.
-                            //todo: test that this actually checks grants (it should in theory).
-                        }
-                        else
-                        {
-                            GameBase.Notify("Twitter authentication failed. Please visit the options screen to login again.");
-                            GameBase.Config.SetValue<string>("username", null);
-                            GameBase.Config.SetValue<string>("hash", null);
-                            GameBase.Config.SetValue<string>("twitterId", null);
-                            GameBase.Config.SaveConfig();
-                            return;
-                        }
-                    }
-                }
+                if (hash == null) return; // TODO: check hash.
+
+                Console.WriteLine(Path.GetFileName(Player.Beatmap.ContainerFilename));
 
                 string check = CryptoHelper.GetMd5String("moocow" +
                     GameBase.Instance.DeviceIdentifier +
@@ -413,7 +389,6 @@ namespace osum.GameModes.Results
                     "&c=" + check +
                     "&difficulty=" + (int)Player.Difficulty +
                     "&username=" + GameBase.Config.GetValue<string>("username", string.Empty) +
-                    "&twitterid=" + GameBase.Config.GetValue<string>("twitterId", string.Empty) +
                     "&dt=" + deviceType +
                     "&offset=" + avg;
 
@@ -453,7 +428,6 @@ namespace osum.GameModes.Results
                 };
                 NetManager.AddRequest(nr);
             }
-#endif
         }
 
         private bool cameFromSongSelect;

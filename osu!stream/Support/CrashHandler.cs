@@ -50,7 +50,7 @@ namespace osum.Support
             contents += "&device=" + (int)osum.Support.iPhone.HardwareDetection.Version;
             contents += "&version=" + Foundation.NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleVersion").ToString();
 #endif
-            StringNetRequest nr = new StringNetRequest("http://localhost:5000/admin/crash.php", "POST", "exception=" + contents);
+            StringNetRequest nr = new StringNetRequest("http://localhost:5000/admin/crash", "POST", "exception=" + contents);
             NetManager.AddRequest(nr);
         }
 
