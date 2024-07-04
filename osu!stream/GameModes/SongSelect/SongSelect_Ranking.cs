@@ -47,7 +47,7 @@ namespace osum.GameModes.SongSelect
 
             int period = 0;
 
-            rankingNetRequest = new StringNetRequest(@"http://localhost:5000/score/retrieve.php", "POST",
+            rankingNetRequest = new StringNetRequest(@"http://localhost:5000/score/retrieve", "POST",
                 "udid=" + GameBase.Instance.DeviceIdentifier +
                 "&filename=" + NetRequest.UrlEncode(Path.GetFileName(Player.Beatmap.ContainerFilename)) +
                 "&period=" + period +

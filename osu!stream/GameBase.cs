@@ -562,7 +562,7 @@ namespace osum
 
         internal static int SuperWidePadding => IsSuperWide ? 30 : 0;
 
-        public static bool HasAuth => false;
+        public static bool HasAuth { get { return !string.IsNullOrEmpty(GameBase.Config.GetValue<string>("hash", null)); } }
 
         internal static void Notify(string simple, BoolDelegate action = null)
         {

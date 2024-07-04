@@ -1,4 +1,7 @@
 using System;
+using System.Security.Cryptography;
+using System.Text;
+using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics;
 using osum.Audio;
@@ -21,6 +24,7 @@ namespace osum.GameModes.Options
 {
     public class Options : GameMode
     {
+        private static readonly MD5CryptoServiceProvider fHasher = new MD5CryptoServiceProvider();
         private BackButton s_ButtonBack;
 
         private readonly SpriteManagerDraggable smd = new SpriteManagerDraggable
@@ -150,7 +154,6 @@ namespace osum.GameModes.Options
 
             vPos += (int)text.MeasureText().Y + 50;
 
-            // Start Login Buttons
             text = new pText(LocalisationManager.GetString(OsuString.OnlineOptions), 36, new Vector2(header_x_offset, vPos), 1, true, Color4.White) { Bold = true, TextShadow = true };
             smd.Add(text);
 
@@ -158,12 +161,12 @@ namespace osum.GameModes.Options
 
             if (!GameBase.HasAuth)
             {
-                button = new pButton(LocalisationManager.GetString(OsuString.TwitterLink), new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, HandleTwitterAuth);
+                button = new pButton("Login", new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, HandlePlayerLogin);
                 smd.Add(button);
 
                 vPos += 40;
 
-                text = new pText(LocalisationManager.GetString(OsuString.Twitter), 24, new Vector2(0, vPos), 1, true, Color4.LightGray) { TextShadow = true };
+                text = new pText("Please connect for full online functionality, including avatars and the ability to link multiple devices!", 24, new Vector2(0, vPos), 1, true, Color4.LightGray) { TextShadow = true };
 
                 text.Field = FieldTypes.StandardSnapTopCentre;
                 text.Origin = OriginTypes.TopCentre;
@@ -172,54 +175,12 @@ namespace osum.GameModes.Options
                 text.TextBounds.X = 600;
 
                 smd.Add(text);
-
-                vPos += (int)text.MeasureText().Y + 50;
-                button = new pButton(LocalisationManager.GetString(OsuString.GuestUsername), new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, delegate
-                {
-#if iOS
-                    TextInputNotification tin = new TextInputNotification(LocalisationManager.GetString(OsuString.ChooseUsername), GameBase.Config.GetValue<string>("username", "Guest"), delegate(bool yes)
-                        {
-                            if (yes)
-                            {
-                                GameBase.Config.SetValue<string>("username", tin.Text);
-                                GameBase.Config.SaveConfig();
-                            }
-                        });
-#endif
-                });
-                smd.Add(button);
             }
             else
             {
-                button = new pButton(string.Format(LocalisationManager.GetString(OsuString.TwitterUnlink), GameBase.Config.GetValue<string>("username", null)), new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, delegate
-                {
-                    StringNetRequest nr = new StringNetRequest("https://osustream.com/twitter/disconnect.php?udid="
-                        + GameBase.Instance.DeviceIdentifier + "&cc=" + GameBase.Config.GetValue<string>("hash", null));
-                    nr.onFinish += delegate (string _result, Exception e)
-                    {
-                        GameBase.GloballyDisableInput = false;
-
-                        if (e != null || _result != "success")
-                            GameBase.Notify(LocalisationManager.GetString(OsuString.TwitterLinkError));
-                        else
-                        {
-                            GameBase.Config.SetValue<string>("username", null);
-                            GameBase.Config.SetValue<string>("hash", null);
-                            GameBase.Config.SetValue<string>("twitterId", null);
-                            GameBase.Config.SaveConfig();
-
-                            Director.ChangeMode(Director.CurrentOsuMode);
-                        }
-                    };
-
-                    GameBase.GloballyDisableInput = true;
-
-                    NetManager.AddRequest(nr);
-                });
-
+                button = new pButton($"Disconnect ({GameBase.Config.GetValue<string>("username", null)})", new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, HandlePlayerLogout);
                 smd.Add(button);
             }
-            // End Login Buttons
 
             UpdateButtons();
 
@@ -228,123 +189,183 @@ namespace osum.GameModes.Options
             smd.ScrollTo(ScrollPosition);
         }
 
-#if iOS
-        ACAccountStore accountStore;
-        private void HandleTwitterAuth(object sender, EventArgs args)
+        private void HandlePlayerLogin(object sender, EventArgs args)
         {
-            if (HardwareDetection.RunningiOS5OrHigher)
+            GameBase.GloballyDisableInput = true;
+#if iOS // iOS Text Input
+
+#elif ANDROID // Android Text Input
+
+#else // Windows Text Input
+            string username = "Username";
+            string password = "Password";
+            if (ShowLoginInputDialog(ref username, ref password) != DialogResult.OK)
             {
-                //if we are running iOS5 or later, we can use the in-built API for handling twitter authentication.
-                accountStore = new ACAccountStore();
-                accountStore.RequestAccess(accountStore.FindAccountType(ACAccountType.Twitter), retrievedAccounts);
-            }
-            else
-            {
-                HandleTwitterOAuth();
-            }
-        }
-
-        private void HandleTwitterOAuth()
-        {
-            GameBase.Instance.ShowWebView("https://osustream.com/twitter/connect.php?udid=" + GameBase.Instance.DeviceIdentifier,
-                LocalisationManager.GetString(OsuString.TwitterLink),
-                delegate(string url)
-                {
-                    if (url.StartsWith("finished://"))
-                    {
-                        string[] split = url.Replace("finished://", "").Split('/');
-
-                        GameBase.Config.SetValue<string>("username", split[0]);
-                        GameBase.Config.SetValue<string>("hash", split[1]);
-                        GameBase.Config.SetValue<string>("twitterId", split[2]);
-                        GameBase.Config.SaveConfig();
-
-                        Director.ChangeMode(Director.CurrentOsuMode);
-                        return true;
-                    }
-                    return false;
-                });
-        }
-
-        private void retrievedAccounts(bool granted, NSError error)
-        {
-            ACAccount[] accounts = accountStore.FindAccounts(accountStore.FindAccountType(ACAccountType.Twitter));
-
-            if (!granted || error != null || accounts == null || accounts.Length == 0)
-                handleManualAuth();
-            else
-                tryNextAccount();
-        }
-
-        private void handleManualAuth()
-        {
-            if (accountStore != null)
-            {
-                accountStore.Dispose();
-                accountStore = null;
-            }
-
-            Notification n = new Notification(LocalisationManager.GetString(OsuString.AccessNotGranted),
-                                              LocalisationManager.GetString(OsuString.AccessNotGrantedDetails),
-                                              NotificationStyle.YesNo,
-                                             delegate(bool resp) {
-                if (resp) HandleTwitterOAuth();
-            });
-            GameBase.Notify(n);
-        }
-
-        private void tryNextAccount(int index = 0)
-        {
-                ACAccount[] accounts = accountStore.FindAccounts(accountStore.FindAccountType(ACAccountType.Twitter));
-                ACAccount account = accounts[index];
-
-                Notification n = new Notification(
-                                    LocalisationManager.GetString(OsuString.TwitterLinkQuestion),
-                                    string.Format(LocalisationManager.GetString(OsuString.TwitterLinkQuestionDetails), account.Username),
-                                    NotificationStyle.YesNo,
-                                    delegate(bool resp) {
-                    if (!resp)
-                    {
-                        if (index == accounts.Length - 1) //exhausted our options.
-                            handleManualAuth();
-                        else
-                            tryNextAccount(index + 1);
-                        return;
-                    }
-
-                    NSDictionary properties = account.GetDictionaryOfValuesFromKeys(new NSString[]{new NSString("properties")});
-                    string twitter_id = properties.ObjectForKey(new NSString("properties")).ValueForKey(new NSString("user_id")).ToString();
-                    //works!!
-
-                    {
-                        Notification n1 = new Notification(LocalisationManager.GetString(OsuString.TwitterSuccess),
-                                                        string.Format(LocalisationManager.GetString(OsuString.TwitterSuccessDetails), account.Username),
-                                                        NotificationStyle.Okay,
-                                                        null);
-                        GameBase.Notify(n1);
-
-                        GameBase.Config.SetValue<string>("username", account.Username);
-                        GameBase.Config.SetValue<string>("hash", "ios-" + account.Identifier);
-                        GameBase.Config.SetValue<string>("twitterId", twitter_id);
-                        GameBase.Config.SaveConfig();
-
-                        Director.ChangeMode(Director.CurrentOsuMode);
-                    }
-                });
-            GameBase.Notify(n);
-        }
-
-#else
-        private void HandleTwitterAuth(object sender, EventArgs args)
-        {
-            //not available on PC builds.
-        }
+                GameBase.GloballyDisableInput = false;
+                return;
+            } 
+            string hash = ComputeMD5Hash(password);
 #endif
+            StringNetRequest nr = new StringNetRequest("http://localhost:5000/auth/connect?udid="
+                + GameBase.Instance.DeviceIdentifier + "&username=" + username + "&cc=" + hash);
+            nr.onFinish += delegate (string _result, Exception e)
+            {
+                GameBase.GloballyDisableInput = false;
+
+                if (e != null || !_result.Contains("success") && _result.Contains("hash"))
+                {
+                    GameBase.Notify("Failed to Connect!\nUsername or Password is incorrect.");
+                }
+                else if (e != null || !_result.Contains("success"))
+                {
+                    GameBase.Notify("Failed to Connect!\nPlease check you are connected to the internet and try again.");
+                }
+                else
+                {
+                    GameBase.Config.SetValue<string>("username", username);
+                    GameBase.Config.SetValue<string>("hash", hash);
+                    GameBase.Config.SaveConfig();
+
+                    Director.ChangeMode(Director.CurrentOsuMode);
+                }
+            };
+
+            NetManager.AddRequest(nr);
+        }
+
+        private void HandlePlayerLogout(object sender, EventArgs args)
+        {
+                StringNetRequest nr = new StringNetRequest("http://localhost:5000/auth/disconnect?udid="
+                        + GameBase.Instance.DeviceIdentifier + "&cc=" + GameBase.Config.GetValue<string>("hash", null));
+                nr.onFinish += delegate (string _result, Exception e)
+                {
+                    GameBase.GloballyDisableInput = false;
+
+                    if (e != null || !_result.Contains("success"))
+                        GameBase.Notify("Failed to Disconnect!\nPlease check you are connected to the internet and try again.");
+                    else
+                    {
+                        GameBase.Config.SetValue<string>("username", null);
+                        GameBase.Config.SetValue<string>("hash", null);
+                        GameBase.Config.SaveConfig();
+
+                        Director.ChangeMode(Director.CurrentOsuMode);
+                    }
+                };
+
+                GameBase.GloballyDisableInput = true;
+
+                NetManager.AddRequest(nr);
+        }
 
         private int lastEffectSound;
         private pButton buttonFingerGuides;
         private pButton buttonEasyMode;
         private pSprite s_Header;
+
+#if !iOS || !ANDROID
+        private static DialogResult ShowLoginInputDialog(ref string username, ref string password)
+        {
+            System.Drawing.Size size = new System.Drawing.Size(200, 78);
+            Form inputBox = new Form
+            {
+                StartPosition = FormStartPosition.CenterParent,
+                FormBorderStyle = FormBorderStyle.FixedToolWindow,
+                MinimizeBox = false,
+                MaximizeBox = false,
+                ShowInTaskbar = false,
+                ControlBox = false,
+                ClientSize = size,
+                Text = "Login"
+            };
+
+            bool firstTime = true;
+            TextBox textBox = new TextBox
+            {
+                Size = new System.Drawing.Size(size.Width - 10, 23),
+                Location = new System.Drawing.Point(5, 5),
+                Text = username
+            };
+            textBox.TextChanged += (sender, e) => 
+            {
+                if (firstTime)
+                {
+                    textBox.Clear();
+                    firstTime = false;
+                }
+            };
+            textBox.LostFocus += (sender, e) =>
+            {
+                firstTime = true;
+            };
+            inputBox.Controls.Add(textBox);
+
+            bool firstTime1 = true;
+            TextBox textBox1 = new TextBox
+            {
+                Size = new System.Drawing.Size(size.Width - 10, 23),
+                Location = new System.Drawing.Point(5, 28),
+                Text = password
+            };
+            textBox1.TextChanged += (sender, e) =>
+            {
+                if (firstTime1)
+                {
+                    textBox1.Clear();
+                    firstTime1 = false;
+                }
+            };
+            textBox1.LostFocus += (sender, e) =>
+            {
+                firstTime1 = true;
+            };
+            inputBox.Controls.Add(textBox1);
+
+            Button okButton = new Button
+            {
+                DialogResult = DialogResult.OK,
+                Name = "okButton",
+                Size = new System.Drawing.Size(75, 23),
+                Text = "&OK",
+                Location = new System.Drawing.Point(size.Width - 80 - 80, 50)
+            };
+            okButton.Click += (sender, e) => inputBox.DialogResult = DialogResult.OK;
+            inputBox.Controls.Add(okButton);
+
+            Button cancelButton = new Button
+            {
+                DialogResult = DialogResult.Cancel,
+                Name = "cancelButton",
+                Size = new System.Drawing.Size(75, 23),
+                Text = "&Cancel",
+                Location = new System.Drawing.Point(size.Width - 80, 50)
+            };
+            cancelButton.Click += (sender, e) => inputBox.DialogResult = DialogResult.Cancel;
+            inputBox.Controls.Add(cancelButton);
+
+            inputBox.AcceptButton = okButton;
+            inputBox.CancelButton = cancelButton;
+
+            DialogResult result = inputBox.ShowDialog();
+            username = textBox.Text;
+            password = textBox1.Text;
+            return result;
+        }
+
+        private static void TextBox_TextChanged(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+#endif
+
+        private static string ComputeMD5Hash(string input)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] byteHash = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+                return BitConverter.ToString(byteHash).Replace("-", "").ToLower();
+            }
+        }
 
         internal static void DisplayFingerGuideDialog()
         {
