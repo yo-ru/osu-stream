@@ -241,7 +241,7 @@ namespace osum.GameModes.MainMenu
             string username = GameBase.Config.GetValue<string>("username", null);
 
             bool hasAuth = GameBase.HasAuth;
-            pText usernameText = new pText(hasAuth ? username : "Guest", 20, new Vector2(hasAuth ? 35 : 2, 0), 1, true, Color4.White);
+            pText usernameText = new pText(hasAuth ? username : "Guest", 20, new Vector2(hasAuth ? 43 : 2, 8), 1, true, Color4.White);
             usernameText.TextShadow = true;
             spriteManager.Add(usernameText);
 
@@ -249,15 +249,18 @@ namespace osum.GameModes.MainMenu
 
             if (hasAuth)
             {
-                pSpriteWeb avatar = new pSpriteWeb(@"http://localhost:5000/avatar/" + username);
+                pSpriteWeb avatar = new pSpriteWeb(@"https://osustream.its.moe/avatar/" + username);
                 if (firstDisplay) avatar.Transform(fadeIn);
                 spriteManager.Add(avatar);
             }
-
-            usernameText.OnClick += delegate {
-                Options.Options.ScrollPosition = Int32.MinValue;
-                Director.ChangeMode(OsuMode.Options);
-            };
+            else
+            {
+                usernameText.OnClick += delegate
+                {
+                    Options.Options.ScrollPosition = Int32.MinValue;
+                    Director.ChangeMode(OsuMode.Options);
+                };
+            }
 
             firstDisplay = false;
         }
