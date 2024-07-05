@@ -47,7 +47,14 @@ namespace osum.GameModes.SongSelect
 
             int period = 0;
 
-            rankingNetRequest = new StringNetRequest(@"http://localhost:5000/score/retrieve", "POST",
+            string hash = GameBase.Config.GetValue<string>("hash", null);
+            if (hash == null)
+            {
+                GameBase.Notify(new Notification("Ranking", "You must connect to view online rankings.", NotificationStyle.Okay, delegate { Ranking_Hide(); }));
+                return;
+            }
+
+            rankingNetRequest = new StringNetRequest(@"https://osustream.its.moe/score/retrieve", "POST",
                 "udid=" + GameBase.Instance.DeviceIdentifier +
                 "&filename=" + NetRequest.UrlEncode(Path.GetFileName(Player.Beatmap.ContainerFilename)) +
                 "&period=" + period +
@@ -65,68 +72,59 @@ namespace osum.GameModes.SongSelect
             if (e != null || _result == null)
             {
                 //error occurred
-                GameBase.Notify(LocalisationManager.GetString(OsuString.InternetFailed), delegate { Ranking_Hide(); });
+                GameBase.Notify(new Notification("Ranking", "Failed to fetch rankings!\nPlease check you are connected to the internet and try again.", NotificationStyle.Okay, delegate { Ranking_Hide(); }));
                 return;
             }
 
-            try
+            if (e == null  && _result == String.Empty)
             {
-                rankingScores = new List<Score>();
-
-                foreach (string s in _result.Split('\n'))
-                {
-                    if (s.Length == 0) continue;
-
-                    string[] split = s.Split('|');
-
-                    int i = 0;
-
-                    Score score = new Score
-                    {
-                        Id = int.Parse(split[i++], GameBase.nfi),
-                        OnlineRank = int.Parse(split[i++], GameBase.nfi),
-                        Username = split[i++],
-                        hitScore = int.Parse(split[i++], GameBase.nfi),
-                        comboBonusScore = int.Parse(split[i++], GameBase.nfi),
-                        spinnerBonusScore = int.Parse(split[i++], GameBase.nfi),
-                        count300 = ushort.Parse(split[i++], GameBase.nfi),
-                        count100 = ushort.Parse(split[i++], GameBase.nfi),
-                        count50 = ushort.Parse(split[i++], GameBase.nfi),
-                        countMiss = ushort.Parse(split[i++], GameBase.nfi),
-                        maxCombo = ushort.Parse(split[i++], GameBase.nfi),
-                        date = UnixTimestamp.Parse(int.Parse(split[i++], GameBase.nfi)),
-                        guest = split[i++] == "1"
-                    };
-
-                    rankingScores.Add(score);
-                }
-
-                int index = 0;
-                foreach (Score score in rankingScores)
-                {
-                    ScorePanel sp = new ScorePanel(score, onScoreClicked);
-                    sp.Sprites.ForEach(s => s.Position = new Vector2(0, 50 + (ScorePanel.PANEL_HEIGHT + 3) * index));
-
-                    rankingSpriteManager.Add(sp);
-
-                    index++;
-                }
-
-                GameBase.ShowLoadingOverlay = false;
-
-                rankingSpriteManager.FadeInFromZero(300);
+                GameBase.Notify(new Notification("Ranking", "No rankings available for this mode.", NotificationStyle.Okay, delegate { Ranking_Hide(); }));
             }
-            catch
+
+            rankingScores = new List<Score>();
+
+            foreach (string s in _result.Split('\n'))
             {
-                // we have a message from score sub
-                if (e == null && _result != null && _result.StartsWith("message:"))
+                if (s.Length == 0) continue;
+
+                string[] split = s.Split('|');
+
+                int i = 0;
+
+                Score score = new Score
                 {
-                    GameBase.Notify(_result.Replace("message:", string.Empty), delegate { Ranking_Hide(); });
-                    return;
-                }
-                // score sub response invalid
-                GameBase.Notify(LocalisationManager.GetString(OsuString.InternetFailed), delegate { Ranking_Hide(); });
+                    Id = int.Parse(split[i++], GameBase.nfi),
+                    OnlineRank = int.Parse(split[i++], GameBase.nfi),
+                    Username = split[i++],
+                    hitScore = int.Parse(split[i++], GameBase.nfi),
+                    comboBonusScore = int.Parse(split[i++], GameBase.nfi),
+                    spinnerBonusScore = int.Parse(split[i++], GameBase.nfi),
+                    count300 = ushort.Parse(split[i++], GameBase.nfi),
+                    count100 = ushort.Parse(split[i++], GameBase.nfi),
+                    count50 = ushort.Parse(split[i++], GameBase.nfi),
+                    countMiss = ushort.Parse(split[i++], GameBase.nfi),
+                    maxCombo = ushort.Parse(split[i++], GameBase.nfi),
+                    date = UnixTimestamp.Parse(int.Parse(split[i++], GameBase.nfi)),
+                    guest = split[i++] == "1"
+                };
+
+                rankingScores.Add(score);
             }
+
+            int index = 0;
+            foreach (Score score in rankingScores)
+            {
+                ScorePanel sp = new ScorePanel(score, onScoreClicked);
+                sp.Sprites.ForEach(s => s.Position = new Vector2(0, 50 + (ScorePanel.PANEL_HEIGHT + 3) * index));
+
+                rankingSpriteManager.Add(sp);
+
+                index++;
+            }
+
+            GameBase.ShowLoadingOverlay = false;
+
+            rankingSpriteManager.FadeInFromZero(300);
         }
 
         private void onScoreClicked(object sender, EventArgs args)
