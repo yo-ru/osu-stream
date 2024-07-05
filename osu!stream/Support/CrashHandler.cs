@@ -17,11 +17,6 @@ namespace osum.Support
         {
             if (isInitialized) return;
 
-/* NOTE: undo eventually
- * #if MONO || ANDROID || iOS
-            return;
-#endif*/
-
             if (File.Exists(LogFileFullPath))
             {
                 string contents = File.ReadAllText(LogFileFullPath);
@@ -50,7 +45,7 @@ namespace osum.Support
             contents += "&device=" + (int)osum.Support.iPhone.HardwareDetection.Version;
             contents += "&version=" + Foundation.NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleVersion").ToString();
 #endif
-            StringNetRequest nr = new StringNetRequest("http://localhost:5000/admin/crash", "POST", "exception=" + contents);
+            StringNetRequest nr = new StringNetRequest("https://osustream.its.moe/admin/crash", "POST", "exception=" + contents);
             NetManager.AddRequest(nr);
         }
 
