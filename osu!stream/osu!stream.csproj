@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -10,6 +10,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>osum</RootNamespace>
     <AssemblyName>osustream</AssemblyName>
+    <ProvisioningType>manual</ProvisioningType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugType>full</DebugType>
@@ -19,7 +20,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <MtouchDebug>True</MtouchDebug>
-    <CodesignKey>iPhone Developer: Dean Herbert (8R8BSRCV48)</CodesignKey>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <additionalargs>/unsafe</additionalargs>
     <Externalconsole>True</Externalconsole>
@@ -27,12 +28,14 @@
     <DebugSymbols>True</DebugSymbols>
     <IpaPackageName>
     </IpaPackageName>
-    <MtouchArch>ARMv7, ARMv7s, ARM64</MtouchArch>
+    <MtouchArch>ARM64</MtouchArch>
     <CrashReportingApiKey>
     </CrashReportingApiKey>
     <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
-    <CodesignProvision>VS: WildCard Development</CodesignProvision>
+    <CodesignProvision>
+    </CodesignProvision>
     <DeviceSpecificBuild>false</DeviceSpecificBuild>
+    <MtouchInterpreter>-all</MtouchInterpreter>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>True</DebugSymbols>
@@ -63,7 +66,7 @@
     <MtouchUseArmv7>false</MtouchUseArmv7>
     <additionalargs>/unsafe</additionalargs>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <CodesignKey>iPhone Developer: Dean Herbert (8R8BSRCV48)</CodesignKey>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchUseLlvm>True</MtouchUseLlvm>
     <ConsolePause>False</ConsolePause>
     <IpaPackageName>
@@ -76,8 +79,9 @@
     <BundleVersion>20120419</BundleVersion>
     <BundleDisplayName>osu!test</BundleDisplayName>
     <BundleIcon>IconTest.png</BundleIcon>
-    <MtouchArch>ARMv7</MtouchArch>
-    <CodesignProvision>VS: WildCard Development</CodesignProvision>
+    <MtouchArch>ARM64</MtouchArch>
+    <CodesignProvision>
+    </CodesignProvision>
     <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|iPhone' ">
@@ -89,7 +93,7 @@
     <additionalargs>/unsafe</additionalargs>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <MtouchUseLlvm>True</MtouchUseLlvm>
-    <CodesignKey>iPhone Distribution</CodesignKey>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchLink>Full</MtouchLink>
     <IpaPackageName>
     </IpaPackageName>
@@ -97,8 +101,9 @@
     <BundleVersion>1.2</BundleVersion>
     <BundleDisplayName>osu!</BundleDisplayName>
     <BundleIcon>Icon.png</BundleIcon>
-    <MtouchArch>ARMv7, ARMv7s, ARM64</MtouchArch>
-    <CodesignProvision>osu-stream-20</CodesignProvision>
+    <MtouchArch>ARM64</MtouchArch>
+    <CodesignProvision>
+    </CodesignProvision>
     <MtouchUseThumb>true</MtouchUseThumb>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
   </PropertyGroup>
@@ -279,7 +284,7 @@
     <Compile Include="GameModes\VideoPreview.cs" />
     <Compile Include="GameModes\Play\PreviewPlayer.cs" />
     <Compile Include="GameplayElements\HitObjectManagerPreview.cs" />
-    <Compile Include="UI\TextInputNotification.cs" />
+    <Compile Include="UI\ConnectInputNotification.cs" />
     <Compile Include="Support\CrashHandler.cs" />
     <Compile Include="GameModes\MainMenu\MainMenu_BeatMatching.cs" />
     <Compile Include="Audio\ISoundEffectPlayer.cs" />
@@ -288,26 +293,6 @@
     <Compile Include="Helpers\ExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Input\" />
-    <Folder Include="Skins\" />
-    <Folder Include="Support\" />
-    <Folder Include="Support\iPhone\" />
-    <Folder Include="Skins\Default\" />
-    <Folder Include="Audio\" />
-    <Folder Include="Input\Sources\" />
-    <Folder Include="Helpers\Audio\" />
-    <Folder Include="Helpers\" />
-    <Folder Include="GameplayElements\HitObjects\" />
-    <Folder Include="GameplayElements\" />
-    <Folder Include="GameplayElements\Beatmaps\" />
-    <Folder Include="Graphics\Renderers\" />
-    <Folder Include="Helpers\osu!common\" />
-    <Folder Include="GameModes\SongSelect\" />
-    <Folder Include="GameModes\" />
-    <Folder Include="Graphics\Drawables\" />
-    <Folder Include="GameModes\Options\" />
-    <Folder Include="Localisation\" />
-    <Folder Include="Beatmaps\" />
     <Folder Include="Graphics\Skins\" />
   </ItemGroup>
   <ItemGroup>
@@ -390,19 +375,45 @@
     <Content Include="Beatmaps\tieff &amp; Natteke - Endless Tower %28RandomJibberish%29.osf2" />
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Contents.json" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40120.png" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40114.png" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%4057.png" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40152.png" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%4076.png" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40144.png" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%4072.png" />
-    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.imageset\Contents.json" />
-    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.imageset\loading2436x1125.png" />
-    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40167.png" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%401024.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40120.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40114.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%4057.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40152.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%4076.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40144.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%4072.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.imageset\loading2436x1125.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%40167.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\icon%401024.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

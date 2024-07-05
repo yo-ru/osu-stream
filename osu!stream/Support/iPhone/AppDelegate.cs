@@ -32,6 +32,7 @@ using osum.Helpers;
 using CoreGraphics;
 using osum.GameModes.Play;
 using osum.Input;
+using osum.UI;
 
 namespace osum.Support.iPhone
 {
@@ -77,7 +78,8 @@ namespace osum.Support.iPhone
                     return;
             }
 
-            if (ViewController == null)
+            // Assuming game is an instance of GameBaseIphone
+            if (game != null && ViewController == null)
                 game.HandleRotationChange(interfaceOrientation);
         }
 
@@ -93,8 +95,6 @@ namespace osum.Support.iPhone
 
             Instance = this;
 
-            HardwareVersion hardware = HardwareDetection.Version;
-
             context = Utilities.CreateGraphicsContext(EAGLRenderingAPI.OpenGLES1);
 
             glView = new EAGLView(bounds);
@@ -102,10 +102,11 @@ namespace osum.Support.iPhone
 
             window.AddSubview(glView);
 
+            // Adjusting NativeSize based on iOS version
             if (HardwareDetection.RunningiOS8OrHigher)
-                GameBase.NativeSize = new Size((int)(bounds.Width * GameBase.ScaleFactor), (int)(bounds.Height * GameBase.ScaleFactor));
+                GameBase.NativeSize = new System.Drawing.Size((int)(bounds.Width * GameBase.ScaleFactor), (int)(bounds.Height * GameBase.ScaleFactor));
             else
-                GameBase.NativeSize = new Size((int)(bounds.Height * GameBase.ScaleFactor), (int)(bounds.Width * GameBase.ScaleFactor));
+                GameBase.NativeSize = new System.Drawing.Size((int)(bounds.Height * GameBase.ScaleFactor), (int)(bounds.Width * GameBase.ScaleFactor));
 
 #if !DIST
             Console.WriteLine("scale factor " + GameBase.ScaleFactor);
@@ -124,6 +125,7 @@ namespace osum.Support.iPhone
 
         public override void WillEnterForeground(UIApplication application)
         {
+            // Assuming Director.CurrentOsuMode is a property to get the current mode
             if (Director.CurrentOsuMode == OsuMode.MainMenu)
                 Director.ChangeMode(OsuMode.MainMenu, null);
         }
@@ -165,19 +167,21 @@ namespace osum.Support.iPhone
             TextureManager.PurgeUnusedTexture();
         }
 
-        public static UIViewController ViewController;
+        public static UIViewController ViewController = ConnectInputNotification.presentingViewController;
 
         public static bool UsingViewController;
         public static void SetUsingViewController(bool isUsing)
         {
-                if (isUsing == UsingViewController) return;
-                UsingViewController = isUsing;
+            if (isUsing == UsingViewController) return;
+            UsingViewController = isUsing;
 
-                if (UsingViewController)
+            if (UsingViewController)
+            {
+                if (ViewController == null)
+                    ViewController = new GenericViewController();
+
+                if (Instance.window != null)
                 {
-                    if (ViewController == null)
-                        ViewController = new GenericViewController();
-
                     Instance.window.AddSubview(ViewController.View);
 
                     InputSourceIphone source = InputManager.RegisteredSources[0] as InputSourceIphone;
@@ -185,14 +189,21 @@ namespace osum.Support.iPhone
 
                     glView.StopAnimation();
                 }
-                else
+            }
+            else
+            {
+                if (ViewController != null)
                 {
                     ViewController.View.RemoveFromSuperview();
                     ViewController.Dispose();
                     ViewController = null;
+                }
 
+                if (glView != null)
+                {
                     glView.StartAnimation();
                 }
+            }
         }
     }
 
@@ -222,7 +233,7 @@ namespace osum.Support.iPhone
                 case UIInterfaceOrientation.LandscapeLeft:
                 case UIInterfaceOrientation.LandscapeRight:
                     return toInterfaceOrientation == UIApplication.SharedApplication.StatusBarOrientation;
-                    //only allow rotation on initial display, else all hell breaks loose.
+                //only allow rotation on initial display, else all hell breaks loose.
                 default:
                     return false;
             }

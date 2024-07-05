@@ -53,6 +53,11 @@ using osum.Localisation;
 using osum.Support;
 using osum.UI;
 
+#if !iOS && !ANDROID
+using System.Management;
+using System.Security.Cryptography;
+using System.Text;
+#endif
 
 namespace osum
 {
@@ -393,7 +398,49 @@ namespace osum
             Clock.Start();
         }
 
-        public virtual string DeviceIdentifier => "1234567890123456789012345678901234567890";
+        public virtual string DeviceIdentifier
+        {
+            get 
+            {
+#if iOS
+                return CryptoHelper.GetMd5String(UIDevice.CurrentDevice.IdentifierForVendor.ToString());
+#elif ANDROID
+
+#else
+                string ret = string.Empty;
+
+                string concatStr = string.Empty;
+                try
+                {
+                    ManagementObjectSearcher searcherBb = new ManagementObjectSearcher("SELECT * FROM Win32_BaseBoard");
+                    foreach (var obj in searcherBb.Get())
+                    {
+                        concatStr += obj.Properties["SerialNumber"].Value.ToString().Trim() ?? string.Empty;
+                    }
+
+                    ManagementObjectSearcher searcherBios = new ManagementObjectSearcher("SELECT * FROM Win32_BIOS");
+                    foreach (var obj in searcherBios.Get())
+                    {
+                        concatStr += obj.Properties["SerialNumber"].Value.ToString().Trim() ?? string.Empty;
+                    }
+
+                    ManagementObjectSearcher searcherOs = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
+                    foreach (var obj in searcherOs.Get())
+                    {
+                        concatStr += obj.Properties["SerialNumber"].Value.ToString().Trim() ?? string.Empty;
+                    }
+
+                    ret = CryptoHelper.GetMd5String(concatStr);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
+
+                return ret;
+#endif
+            }
+        }
 
         /// <summary>
         /// Initializes the sound effects engine.
