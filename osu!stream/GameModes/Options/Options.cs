@@ -1,5 +1,7 @@
 using System;
+#if !iOS
 using System.Windows.Forms;
+#endif
 using OpenTK;
 using OpenTK.Graphics;
 using osum.Audio;
@@ -16,6 +18,7 @@ using osum.UI;
 using Accounts;
 using Foundation;
 using osum.Support.iPhone;
+using UIKit;
 #endif
 
 namespace osum.GameModes.Options
@@ -158,12 +161,12 @@ namespace osum.GameModes.Options
 
             if (!GameBase.HasAuth)
             {
-                button = new pButton("Login", new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, HandlePlayerLogin);
+                button = new pButton("Connect", new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, HandlePlayerConnect);
                 smd.Add(button);
 
                 vPos += 40;
 
-                text = new pText("Please connect for full online functionality, including avatars and the ability to link multiple devices!", 24, new Vector2(0, vPos), 1, true, Color4.LightGray) { TextShadow = true };
+                text = new pText("Please connect for full online functionality, including avatars and the ability to submit scores and view rankings.", 24, new Vector2(0, vPos), 1, true, Color4.LightGray) { TextShadow = true };
 
                 text.Field = FieldTypes.StandardSnapTopCentre;
                 text.Origin = OriginTypes.TopCentre;
@@ -175,7 +178,7 @@ namespace osum.GameModes.Options
             }
             else
             {
-                button = new pButton($"Disconnect ({GameBase.Config.GetValue<string>("username", null)})", new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, HandlePlayerLogout);
+                button = new pButton($"Disconnect ({GameBase.Config.GetValue<string>("username", null)})", new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, HandlePlayerDisconnect);
                 smd.Add(button);
             }
 
@@ -186,32 +189,60 @@ namespace osum.GameModes.Options
             smd.ScrollTo(ScrollPosition);
         }
 
-        private void HandlePlayerLogin(object sender, EventArgs args)
+        private void HandlePlayerConnect(object sender, EventArgs args)
         {
+#if iOS
+            new ConnectInputNotification((bool isOk, string username, string password) =>
+            {
+                if (isOk)
+                {
+                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                    {
+                        GameBase.Notify("Failed to Connect!\nPlease enter a Username and Password.");
+                        return;
+                    }
+                    PlayerConnect(username, password);
+                }
+                else
+                {
+                    return;
+                }
+            });
+
+#elif ANDROID
+
+#else
             GameBase.GloballyDisableInput = true;
-#if iOS // iOS Text Input
 
-#elif ANDROID // Android Text Input
-
-#else // Windows Text Input
             string username = "Username";
             string password = "Password";
             if (ShowLoginInputDialog(ref username, ref password) != DialogResult.OK)
             {
                 GameBase.GloballyDisableInput = false;
                 return;
-            } 
-            string hash = CryptoHelper.GetMd5String(password);
+            }
+            PlayerLogin(username, password);
 #endif
-            StringNetRequest nr = new StringNetRequest("http://localhost:5000/auth/connect?udid="
+        }
+
+        private void PlayerConnect(string username, string password)
+        {
+            string hash = CryptoHelper.GetMd5String(password);
+            StringNetRequest nr = new StringNetRequest("https://osustream.its.moe/auth/connect?udid="
                 + GameBase.Instance.DeviceIdentifier + "&username=" + username + "&cc=" + hash);
             nr.onFinish += delegate (string _result, Exception e)
             {
+#if !(iOS || ANDROID)
                 GameBase.GloballyDisableInput = false;
+#endif
 
-                if (e != null || !_result.Contains("success") && _result.Contains("hash"))
+                if (e == null && !_result.Contains("success") && _result.Contains("hash"))
                 {
                     GameBase.Notify("Failed to Connect!\nUsername or Password is incorrect.");
+                }
+                else if (e == null && !_result.Contains("success") && _result.Contains("link"))
+                {
+                    GameBase.Notify("Failed to Connect!\nAlready linked to another device.");
                 }
                 else if (e != null || !_result.Contains("success"))
                 {
@@ -230,16 +261,22 @@ namespace osum.GameModes.Options
             NetManager.AddRequest(nr);
         }
 
-        private void HandlePlayerLogout(object sender, EventArgs args)
+        private void HandlePlayerDisconnect(object sender, EventArgs args)
         {
-                StringNetRequest nr = new StringNetRequest("http://localhost:5000/auth/disconnect?udid="
-                        + GameBase.Instance.DeviceIdentifier + "&cc=" + GameBase.Config.GetValue<string>("hash", null));
+                StringNetRequest nr = new StringNetRequest("https://osustream.its.moe/auth/disconnect?username="
+                        + GameBase.Config.GetValue<string>("username", null) + "&cc=" + GameBase.Config.GetValue<string>("hash", null));
                 nr.onFinish += delegate (string _result, Exception e)
                 {
                     GameBase.GloballyDisableInput = false;
 
-                    if (e != null || !_result.Contains("success"))
+                    if (e == null && !_result.Contains("success") && _result.Contains("hash"))
+                    {
+                        GameBase.Notify("Failed to Disconnect!\nHow'd you get here?\nContact Yoru.");
+                    }
+                    else if (e != null || !_result.Contains("success"))
+                    {
                         GameBase.Notify("Failed to Disconnect!\nPlease check you are connected to the internet and try again.");
+                    }
                     else
                     {
                         GameBase.Config.SetValue<string>("username", null);
@@ -260,7 +297,7 @@ namespace osum.GameModes.Options
         private pButton buttonEasyMode;
         private pSprite s_Header;
 
-#if !iOS || !ANDROID
+#if !iOS
         private static DialogResult ShowLoginInputDialog(ref string username, ref string password)
         {
             System.Drawing.Size size = new System.Drawing.Size(200, 78);
