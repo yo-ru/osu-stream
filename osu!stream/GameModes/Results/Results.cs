@@ -403,7 +403,7 @@ namespace osum.GameModes.Results
                 GameBase.MainSpriteManager.Add(spriteSubmitting);
                 spriteSubmitting.FadeInFromZero(300);
 
-                StringNetRequest nr = new StringNetRequest("http://localhost:5000/score/submit", "POST", postString);
+                StringNetRequest nr = new StringNetRequest("https://osustream.its.moe/score/submit", "POST", postString);
                 nr.onFinish += delegate(string result, Exception e)
                 {
                     spriteSubmitting.AlwaysDraw = false;
@@ -420,9 +420,42 @@ namespace osum.GameModes.Results
                         spriteSubmitting.Colour = Color4.Red;
                     }
 
-                    if (e == null && result != null && result.StartsWith("message:"))
+                    Console.WriteLine(result);
+
+                    if (e == null && !result.Contains("success") && result.Contains("score hash"))
                     {
-                        rankingNotification = new Notification("Ranking", result.Replace("message:", string.Empty), NotificationStyle.Okay);
+                        rankingNotification = new Notification("Ranking", "Score invalidated!\nStop doing whatever you're doing.", NotificationStyle.Okay,
+                            delegate
+                            {
+                                GameBase.Config.SetValue<string>("username", null);
+                                GameBase.Config.SetValue<string>("hash", null);
+                                GameBase.Config.SaveConfig();
+                            });
+                    }
+                    else if (e == null && !result.Contains("success") && result.Contains("hash"))
+                    {
+                        rankingNotification = new Notification("Ranking", $"Authentication failed!\nPlease reconnect your account.", NotificationStyle.Okay,
+                            delegate
+                            {
+                                GameBase.Config.SetValue<string>("username", null);
+                                GameBase.Config.SetValue<string>("hash", null);
+                                GameBase.Config.SaveConfig();
+
+                                Options.Options.ScrollPosition = Int32.MinValue;
+                                Director.ChangeMode(OsuMode.Options);
+                            });
+                    }
+                    else if (e == null && result.Contains("success") && result.Contains("highscore"))
+                    {
+                        rankingNotification = new Notification("Ranking", "New high score!\nGood job.", NotificationStyle.Okay);
+                    }
+                    else if (e != null || !result.Contains("success"))
+                    {
+                        rankingNotification = new Notification("Ranking", "Failed to submit!\nPlease check you are connected to the internet and try again.", NotificationStyle.Okay);
+                    }
+
+                    if (result != null && !result.Contains("ok"))
+                    {
                         if (finishedDisplaying) GameBase.Notify(rankingNotification);
                     }
                 };
