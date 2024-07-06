@@ -167,10 +167,7 @@ namespace osum.Support.iPhone
             TextureManager.PurgeUnusedTexture();
         }
 
-        // NOTE: this is a hack
-        // * we only set the view controller during the auth flow
-        // * so this works for now.
-        public static UIViewController ViewController = ConnectInputNotification.presentingViewController;
+        public static UIViewController ViewController;
 
         public static bool UsingViewController;
         public static void SetUsingViewController(bool isUsing)

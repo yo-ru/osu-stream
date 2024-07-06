@@ -35,7 +35,8 @@
     <CodesignProvision>
     </CodesignProvision>
     <DeviceSpecificBuild>false</DeviceSpecificBuild>
-    <MtouchInterpreter>-all</MtouchInterpreter>
+    <MtouchInterpreter>
+    </MtouchInterpreter>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>True</DebugSymbols>
@@ -106,6 +107,7 @@
     </CodesignProvision>
     <MtouchUseThumb>true</MtouchUseThumb>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
+    <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

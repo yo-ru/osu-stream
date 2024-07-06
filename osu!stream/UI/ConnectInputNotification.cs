@@ -10,7 +10,6 @@ namespace osum.UI
         UIAlertController alertController;
         UITextField username;
         UITextField password;
-        public static UIViewController presentingViewController;
         Action<bool, string, string> completion;
 
         public string Username { get; private set; }
@@ -39,12 +38,8 @@ namespace osum.UI
                 alertController.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, action => HandleAction(false)));
             alertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, action => HandleAction(true)));
 
-            presentingViewController = GetTopViewController();
-            if (presentingViewController != null)
-            {
-                AppDelegate.SetUsingViewController(true);
-                presentingViewController.PresentViewController(alertController, true, null);
-            }
+            AppDelegate.SetUsingViewController(true);
+            AppDelegate.ViewController.PresentViewController(alertController, true, null);
         }
 
         void HandleAction(bool isOk)
@@ -63,16 +58,6 @@ namespace osum.UI
             completion(isOk, Username, Password);
             alertController.Dispose();
             AppDelegate.SetUsingViewController(false);
-        }
-
-        UIViewController GetTopViewController()
-        {
-            var viewController = UIApplication.SharedApplication.KeyWindow.RootViewController;
-            while (viewController.PresentedViewController != null)
-            {
-                viewController = viewController.PresentedViewController;
-            }
-            return viewController;
         }
     }
 }
