@@ -398,15 +398,13 @@ namespace osum
             Clock.Start();
         }
 
+#if !(iOS || ANDROID)
         public virtual string DeviceIdentifier
         {
-            get 
+            get
             {
-#if iOS
-                return CryptoHelper.GetMd5String(UIDevice.CurrentDevice.IdentifierForVendor.ToString());
-#elif ANDROID
 
-#else
+
                 string ret = string.Empty;
 
                 string concatStr = string.Empty;
@@ -438,9 +436,12 @@ namespace osum
                 }
 
                 return ret;
-#endif
-            }
         }
+
+    }
+#else
+        public virtual string DeviceIdentifier => "123456789012345678901234567890";
+#endif
 
         /// <summary>
         /// Initializes the sound effects engine.

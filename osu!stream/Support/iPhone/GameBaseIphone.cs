@@ -237,7 +237,7 @@ namespace osum
                     if (eCode == SecStatusCode.Success && oQueryRec != null && oQueryRec.Generic != null)
                     {
                         // Decode from UTF8.
-                        return NSString.FromData(oQueryRec.Generic, NSStringEncoding.UTF8);
+                        return CryptoHelper.GetMd5String(NSString.FromData(oQueryRec.Generic, NSStringEncoding.UTF8));
                     }
 
                     //we haven't yet stored a unique identifier. for old databases, let's migrate the udid across
@@ -259,7 +259,7 @@ namespace osum
 #endif
                 }
 
-                return identifier;
+                return CryptoHelper.GetMd5String(identifier);
             }
         }
 
