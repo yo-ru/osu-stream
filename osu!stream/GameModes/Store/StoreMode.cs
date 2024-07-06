@@ -78,7 +78,7 @@ namespace osum.GameModes.Store
             GameBase.ShowLoadingOverlay = true;
 
             fetchRequest?.Abort();
-            fetchRequest = new StringNetRequest("https://www.osustream.com/dl/list3.php");
+            fetchRequest = new StringNetRequest("https://osustream.its.moe/dl/list");
             fetchRequest.onFinish += handlePackInfo;
             NetManager.AddRequest(fetchRequest);
 
@@ -165,6 +165,7 @@ namespace osum.GameModes.Store
 
                     string filename = split[0];
                     string checksum = split[1];
+                    Console.WriteLine($"checksum: {checksum}");
                     string revision = length > 2 ? split[3] : "1.0";
                     string title = length > 2 ? split[2] : null;
                     //string youtubeId = length > 4 ? split[4] : null;

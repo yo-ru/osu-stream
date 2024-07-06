@@ -193,7 +193,7 @@ namespace osum.GameModes.Store
             }
             else
             {
-                Sprites.Add(s_Thumbnail = new pSpriteWeb("https://www.osustream.com/dl/preview.php?filename=" + PackId + "&format=jpg")
+                Sprites.Add(s_Thumbnail = new pSpriteWeb("https://osustream.its.moe/dl/preview?filename=" + PackId + "&format=jpg")
                 {
                     DrawDepth = base_depth + 0.02f,
                     Offset = new Vector2(38.5f, 3.8f)
@@ -262,7 +262,7 @@ namespace osum.GameModes.Store
 
                 string receipt64 = Receipt != null ? Convert.ToBase64String(Receipt) : "";
 
-                string downloadPath = "https://www.osustream.com/dl/download2.php";
+                string downloadPath = "https://osustream.its.moe/dl/download";
                 string param = "pack=" + PackId + "&filename=" + NetRequest.UrlEncode(item.Filename) + "&id=" + GameBase.Instance.DeviceIdentifier + "&recp=" + receipt64;
                 if (item.UpdateChecksum != null)
                     param += "&update=" + item.UpdateChecksum;
@@ -395,7 +395,7 @@ namespace osum.GameModes.Store
 
                 previewRequest?.Abort();
 
-                string downloadPath = "https://www.osustream.com/dl/preview.php";
+                string downloadPath = "https://osustream.its.moe/dl/preview";
                 string param = "pack=" + PackId + "&filename=" + NetRequest.UrlEncode(item.Filename) + "&format=" + PREFERRED_FORMAT;
                 previewRequest = new DataNetRequest(downloadPath, "POST", param);
                 previewRequest.onFinish += delegate(byte[] data, Exception ex)
@@ -491,7 +491,7 @@ namespace osum.GameModes.Store
 
                 AudioEngine.PlaySample(OsuSamples.MenuHit);
                 StoreMode.ResetAllPreviews(true);
-                VideoPreview.DownloadLink = "https://www.osustream.com/dl/download2.php?pack=" + PackId + "&filename=" + NetRequest.UrlEncode(item.Filename) + "&id=" + GameBase.Instance.DeviceIdentifier + "&preview=1";
+                VideoPreview.DownloadLink = "https://osustream.its.moe/dl/download?pack=" + PackId + "&filename=" + NetRequest.UrlEncode(item.Filename) + "&id=" + GameBase.Instance.DeviceIdentifier + "&preview=1";
                 Director.ChangeMode(OsuMode.VideoPreview, true);
             };
 

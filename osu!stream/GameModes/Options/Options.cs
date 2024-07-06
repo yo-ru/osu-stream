@@ -73,7 +73,7 @@ namespace osum.GameModes.Options
 
             vPos += 70;
 
-            button = new pButton(LocalisationManager.GetString(OsuString.OnlineHelp), new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, delegate { GameBase.Instance.ShowWebView("https://www.osustream.com/help/", "Online Help"); });
+            button = new pButton(LocalisationManager.GetString(OsuString.OnlineHelp), new Vector2(button_x_offset, vPos), new Vector2(280, 50), Color4.SkyBlue, delegate { GameBase.Instance.ShowWebView("https://osustream.its.moe/help", "Online Help"); });
 
             smd.Add(button);
 
@@ -227,9 +227,14 @@ namespace osum.GameModes.Options
 
         private void PlayerConnect(string username, string password)
         {
+#if iOS
+            int deviceType = (int)osum.Support.iPhone.HardwareDetection.Version;
+#else
+            int deviceType = 0;
+#endif
             string hash = CryptoHelper.GetMd5String(password);
             StringNetRequest nr = new StringNetRequest("https://osustream.its.moe/auth/connect?udid="
-                + GameBase.Instance.DeviceIdentifier + "&username=" + username + "&cc=" + hash);
+                + GameBase.Instance.DeviceIdentifier + "&username=" + username + "&cc=" + hash + "&dt=" + deviceType);
             nr.onFinish += delegate (string _result, Exception e)
             {
 #if !(iOS || ANDROID)
