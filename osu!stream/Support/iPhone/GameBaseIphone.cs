@@ -58,7 +58,7 @@ namespace osum
         override public void Run()
         {
             AppDelegate.game = this;
-            UIKit.UIApplication.Main(new string[]{},"HaxApplication","AppDelegate");
+            UIApplication.Main(new string[] { }, typeof(HaxApplication), typeof(AppDelegate));
         }
 
         bool disableDimming = false;
