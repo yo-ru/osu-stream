@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using OpenTK;
 using OpenTK.Graphics;
 using osum.Audio;
@@ -19,11 +20,7 @@ namespace osum.GameModes.SongSelect
     public partial class SongSelectMode
     {
 #if iOS
-    #if !DIST
             public static string BeatmapPath { get { return Environment.GetFolderPath(Environment.SpecialFolder.Personal); } }
-    #else
-            public static string BeatmapPath { get { return Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/../Library/Caches"; } }
-    #endif
 #elif ANDROID
         public static string BeatmapPath { get { return Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/Beatmaps"; } }
 #else
@@ -152,6 +149,52 @@ namespace osum.GameModes.SongSelect
             }
         }
 
+        private static bool IsStreamContainer(string path)
+        {
+            string ext = Path.GetExtension(path).ToLowerInvariant();
+            return ext == ".osz2" || ext == ".osf2";
+        }
+
+#if iOS
+        private static string BundleImportMarker =>
+            Path.Combine(BeatmapPath, ".bundled_imported");
+
+        private void ImportBundledBeatmapsOnce()
+        {
+            if (File.Exists(BundleImportMarker))
+                return;
+
+            Directory.CreateDirectory(BeatmapPath);
+
+            foreach (string src in Directory.GetFiles("Beatmaps/").Where(IsStreamContainer))
+            {
+                string dst = Path.Combine(BeatmapPath, Path.GetFileName(src));
+
+                if (!File.Exists(dst))
+                    File.Copy(src, dst);
+            }
+
+            File.WriteAllText(BundleImportMarker, "ok");
+        }
+#endif
+
+        private bool DiskMatchesDatabase()
+        {
+            var diskBeatmaps = Directory
+                .GetFiles(BeatmapPath).Where(IsStreamContainer)
+                .Select(f => Path.GetFileName(f).ToLowerInvariant())
+                .OrderBy(x => x)
+                .ToArray();
+
+            var dbBeatmaps = BeatmapDatabase.BeatmapInfo
+                .Select(b => Path.GetFileName(b.GetBeatmap().ContainerFilename).ToLowerInvariant())
+                .OrderBy(x => x)
+                .ToArray();
+
+            return diskBeatmaps.SequenceEqual(dbBeatmaps);
+        }
+
+
         public static bool ForceBeatmapRefresh;
 
         /// <summary>
@@ -163,50 +206,41 @@ namespace osum.GameModes.SongSelect
 
             BeatmapDatabase.Initialize();
 
-#if !DIST
-            if (GameBase.Mapper)
-            {
-                //desktop/mapper builds.
-                recursiveBeatmaps(BeatmapPath);
-            }
-            else
+#if iOS
+            ImportBundledBeatmapsOnce();
 #endif
-            if (BeatmapDatabase.BeatmapInfo.Count > 0 && !ForceBeatmapRefresh && BeatmapDatabase.Version == BeatmapDatabase.DATABASE_VERSION)
+
+            bool databaseValid =
+                BeatmapDatabase.BeatmapInfo.Count > 0 &&
+                !ForceBeatmapRefresh &&
+                BeatmapDatabase.Version == BeatmapDatabase.DATABASE_VERSION &&
+                DiskMatchesDatabase();
+
+            if (databaseValid)
             {
-                bool hasMissingMaps = false;
                 foreach (BeatmapInfo bmi in BeatmapDatabase.BeatmapInfo)
                 {
                     Beatmap b = bmi.GetBeatmap();
+
                     if (!File.Exists(b.ContainerFilename))
                     {
-                        hasMissingMaps = true;
-                        continue;
+                        databaseValid = false;
+                        break;
                     }
 
                     maps.AddInPlace(b);
                 }
             }
-            else
+
+            if (!databaseValid)
             {
 #if !DIST
-                Console.WriteLine("Regenerating database!");
+    Console.WriteLine("Regenerating database!");
 #endif
 
                 ForceBeatmapRefresh = false;
 
-#if iOS
-                    //bundled maps
-                    foreach (string s in Directory.GetFiles("Beatmaps/"))
-                    {
-
-                        Beatmap b = new Beatmap(s);
-
-                        BeatmapDatabase.PopulateBeatmap(b);
-                        maps.AddInPlace(b);
-                    }
-#endif
-
-                foreach (string s in Directory.GetFiles(BeatmapPath, "*.os*"))
+                foreach (string s in Directory.GetFiles(BeatmapPath).Where(IsStreamContainer))
                 {
                     Beatmap b = new Beatmap(s);
 
@@ -257,22 +291,6 @@ namespace osum.GameModes.SongSelect
             panelDownloadMore.s_Text.Offset.Y += 16;
             panels.Add(panelDownloadMore);
             topmostSpriteManager.Add(panelDownloadMore);
-        }
-
-        private void recursiveBeatmaps(string subdir)
-        {
-            if (subdir.Contains("Abandoned"))
-                return;
-
-            foreach (string ss in Directory.GetDirectories(subdir))
-                recursiveBeatmaps(ss);
-
-            foreach (string s in Directory.GetFiles(subdir, "*.osz2"))
-            {
-                Beatmap b = new Beatmap(s);
-                BeatmapDatabase.PopulateBeatmap(b);
-                maps.AddInPlace(b);
-            }
         }
 
         private void panelSelected(object sender, EventArgs args)
