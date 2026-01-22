@@ -10,7 +10,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>osum</RootNamespace>
     <AssemblyName>osustream</AssemblyName>
-    <ProvisioningType>manual</ProvisioningType>
+    <ProvisioningType>automatic</ProvisioningType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugType>full</DebugType>
@@ -26,8 +26,7 @@
     <Externalconsole>True</Externalconsole>
     <MtouchUseArmv7>false</MtouchUseArmv7>
     <DebugSymbols>True</DebugSymbols>
-    <IpaPackageName>
-    </IpaPackageName>
+    <IpaPackageName>moe!stream</IpaPackageName>
     <MtouchArch>ARM64</MtouchArch>
     <CrashReportingApiKey>
     </CrashReportingApiKey>
@@ -37,6 +36,8 @@
     <DeviceSpecificBuild>false</DeviceSpecificBuild>
     <MtouchInterpreter>
     </MtouchInterpreter>
+    <BuildIpa>false</BuildIpa>
+    <IpaIncludeArtwork>true</IpaIncludeArtwork>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>True</DebugSymbols>
@@ -72,7 +73,7 @@
     <ConsolePause>False</ConsolePause>
     <IpaPackageName>
     </IpaPackageName>
-    <BuildIpa>True</BuildIpa>
+    <BuildIpa>false</BuildIpa>
     <MtouchLink>Full</MtouchLink>
     <CrashReportingApiKey>
     </CrashReportingApiKey>
@@ -96,8 +97,7 @@
     <MtouchUseLlvm>True</MtouchUseLlvm>
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchLink>Full</MtouchLink>
-    <IpaPackageName>
-    </IpaPackageName>
+    <IpaPackageName>osustream</IpaPackageName>
     <BundleIdentifier>sh.ppy.osu</BundleIdentifier>
     <BundleVersion>1.2</BundleVersion>
     <BundleDisplayName>osu!</BundleDisplayName>
@@ -110,11 +110,16 @@
     <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
     <MtouchDebug>false</MtouchDebug>
     <IOSDebugOverWiFi>false</IOSDebugOverWiFi>
+    <BuildIpa>false</BuildIpa>
+    <IpaIncludeArtwork>false</IpaIncludeArtwork>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodesignProvision>VS: WildCard Development</CodesignProvision>
     <CodesignKey>iPhone Developer: Dean Herbert (8R8BSRCV48)</CodesignKey>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
+    <AppExtensionDebugBundleId />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

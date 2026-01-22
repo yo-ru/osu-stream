@@ -74,7 +74,13 @@
 	<string>2020.226.0</string>
 	<key>CFBundleShortVersionString</key>
 	<string>2020</string>
+	<key>UIFileSharingEnabled</key>
+	<string>YES</string>
 	<key>CFBundleIdentifier</key>
 	<string>moe.its.stream</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>gamekit</string>
+	</array>
 </dict>
 </plist>
