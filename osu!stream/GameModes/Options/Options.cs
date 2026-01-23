@@ -1,5 +1,5 @@
 using System;
-#if !iOS
+#if !iOS && !ANDROID
 using System.Windows.Forms;
 #endif
 using OpenTK;
@@ -13,6 +13,10 @@ using osum.Helpers;
 using osum.Libraries.NetLib;
 using osum.Localisation;
 using osum.UI;
+
+#if ANDROID
+using osum.Support.Android;
+#endif
 
 #if iOS
 using Accounts;
@@ -47,8 +51,10 @@ namespace osum.GameModes.Options
 
             pDrawable background =
                 new pSprite(TextureManager.Load(OsuTexture.songselect_background), FieldTypes.StandardSnapCentre, OriginTypes.Centre,
-                    ClockTypes.Mode, Vector2.Zero, 0, true, new Color4(56, 56, 56, 255));
-            background.AlphaBlend = false;
+                    ClockTypes.Mode, Vector2.Zero, 0, true, new Color4(56, 56, 56, 255))
+                {
+                    AlphaBlend = false
+                };
             spriteManager.Add(background);
 
             s_ButtonBack = new BackButton(delegate { Director.ChangeMode(OsuMode.MainMenu); }, Director.LastOsuMode == OsuMode.MainMenu);
@@ -156,10 +162,13 @@ namespace osum.GameModes.Options
 
             vPos += 40;
 
-            text = new pText(LocalisationManager.GetString(OsuString.UniversalOffsetDetails), 24, new Vector2(0, vPos), 1, true, Color4.LightGray) { TextShadow = true };
-            text.Field = FieldTypes.StandardSnapTopCentre;
-            text.Origin = OriginTypes.TopCentre;
-            text.TextAlignment = TextAlignment.Centre;
+            text = new pText(LocalisationManager.GetString(OsuString.UniversalOffsetDetails), 24, new Vector2(0, vPos), 1, true, Color4.LightGray)
+            {
+                TextShadow = true,
+                Field = FieldTypes.StandardSnapTopCentre,
+                Origin = OriginTypes.TopCentre,
+                TextAlignment = TextAlignment.Centre
+            };
             text.MeasureText(); //force a measure as this is the last sprite to be added to the draggable area (need height to be precalculated)
             text.TextBounds.X = 600;
             smd.Add(text);
@@ -178,11 +187,13 @@ namespace osum.GameModes.Options
 
                 vPos += 40;
 
-                text = new pText("Please connect for full online functionality, including avatars and the ability to submit scores and view rankings.", 24, new Vector2(0, vPos), 1, true, Color4.LightGray) { TextShadow = true };
-
-                text.Field = FieldTypes.StandardSnapTopCentre;
-                text.Origin = OriginTypes.TopCentre;
-                text.TextAlignment = TextAlignment.Centre;
+                text = new pText("Please connect for full online functionality, including avatars and the ability to submit scores and view rankings.", 24, new Vector2(0, vPos), 1, true, Color4.LightGray)
+                {
+                    TextShadow = true,
+                    Field = FieldTypes.StandardSnapTopCentre,
+                    Origin = OriginTypes.TopCentre,
+                    TextAlignment = TextAlignment.Centre
+                };
                 text.MeasureText(); //force a measure as this is the last sprite to be added to the draggable area (need height to be precalculated)
                 text.TextBounds.X = 600;
 
@@ -222,7 +233,18 @@ namespace osum.GameModes.Options
             });
 
 #elif ANDROID
-
+            new ConnectInputNotification(((GameBaseAndroid)GameBase.Instance).Activity, (bool isOk, string username, string password) =>
+            {
+                if (isOk)
+                {
+                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                    {
+                        GameBase.Notify("Failed to Connect!\nPlease enter a Username and Password.");
+                        return;
+                    }
+                    PlayerConnect(username, password);
+                }
+            });
 #else
             GameBase.GloballyDisableInput = true;
 
@@ -233,7 +255,7 @@ namespace osum.GameModes.Options
                 GameBase.GloballyDisableInput = false;
                 return;
             }
-            PlayerLogin(username, password);
+            PlayerConnect(username, password);
 #endif
         }
 
@@ -318,7 +340,7 @@ namespace osum.GameModes.Options
         private pButton buttonMapperMode;
 #endif
 
-#if !iOS
+#if !ANDROID && !iOS
         private static DialogResult ShowLoginInputDialog(ref string username, ref string password)
         {
             System.Drawing.Size size = new System.Drawing.Size(200, 78);

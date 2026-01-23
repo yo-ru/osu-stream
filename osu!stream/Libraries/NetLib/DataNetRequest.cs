@@ -1,7 +1,9 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
+using System.IO;
 
 #if iOS
 using Foundation;
@@ -41,7 +43,7 @@ namespace osum.Libraries.NetLib
             }
             else if (written + (int)data.Length > result.Length)
             {
-                byte[] nb = new byte [result.Length + (int)data.Length];
+                byte[] nb = new byte[result.Length + (int)data.Length];
                 result.CopyTo(nb, 0);
                 Marshal.Copy(data.Bytes, nb, result.Length, (int)data.Length);
                 result = nb;
@@ -63,38 +65,24 @@ namespace osum.Libraries.NetLib
         public override void FinishedLoading(NSUrlConnection connection)
         {
             finished = true;
-
-#if !DIST
-            if (error != null)
-                Console.WriteLine("ERROR: " + error.ToString());
-#endif
-
             nr.TriggerUpdate();
-
             nr.data = result;
             nr.error = error;
-
             nr.processFinishedRequest();
         }
 
         public override void FailedWithError(NSUrlConnection connection, NSError err)
         {
             if (err != null)
-            {
                 error = new Exception(err.ToString());
-                nr.error = error;
-            }
 
+            nr.error = error;
             finished = true;
-
             nr.processFinishedRequest();
         }
     }
 #endif
 
-    /// <summary>
-    /// Downloads a file from the internet to a specified location
-    /// </summary>
     public class DataNetRequest : NetRequest
     {
         private readonly string method;
@@ -119,13 +107,9 @@ namespace osum.Libraries.NetLib
 
         public void TriggerUpdate()
         {
-            if (del.result == null) return;
-
-            int len = del.result.Length;
-            if (len == 0) return;
-
+            if (del?.result == null) return;
             if (onUpdate != null)
-                onUpdate(this, del.written, len);
+                onUpdate(this, del.written, del.result.Length);
         }
 #endif
 
@@ -133,82 +117,99 @@ namespace osum.Libraries.NetLib
         {
             try
             {
-                //inform subscribers that we have started
                 onStart?.Invoke();
 
 #if iOS
                 del = new NRDelegate(this);
 
-                NSMutableUrlRequest req = new NSMutableUrlRequest(new NSUrl(UrlEncode(m_url)), NSUrlRequestCachePolicy.ReloadIgnoringCacheData, 30);
+                NSMutableUrlRequest req =
+                    new NSMutableUrlRequest(
+                        new NSUrl(UrlEncode(m_url)),
+                        NSUrlRequestCachePolicy.ReloadIgnoringCacheData,
+                        30);
+
                 req.HttpMethod = method;
+
                 if (method == "POST")
                 {
-                    NSMutableDictionary headers = (NSMutableDictionary)req.Headers.MutableCopy();
-                    headers.SetValueForKey(new NSString("application/x-www-form-urlencoded"), new NSString("content-type"));
-
+                    NSMutableDictionary headers =
+                        (NSMutableDictionary)req.Headers.MutableCopy();
+                    headers.SetValueForKey(
+                        new NSString("application/x-www-form-urlencoded"),
+                        new NSString("content-type"));
                     req.Headers = headers;
-
                     req.Body = NSData.FromString(postData);
                 }
-                NSUrlConnection conn = new NSUrlConnection(req, del, true);
 
-#if !DIST
-                if (error != null)
-                    Console.WriteLine("requst finished with error " + error);
-#endif
+                new NSUrlConnection(req, del, true);
 
 #else
-                using (HttpClient hc = new HttpClient())
-                using (var request = new HttpRequestMessage(postData != null ? HttpMethod.Post : HttpMethod.Get, m_url))
+                var handler = new HttpClientHandler
+                {
+                    AutomaticDecompression =
+                        DecompressionMethods.GZip |
+                        DecompressionMethods.Deflate
+                };
+
+                using (var hc = new HttpClient(handler))
+                using (var request = new HttpRequestMessage(
+                    postData != null ? HttpMethod.Post : HttpMethod.Get,
+                    m_url))
                 {
                     if (postData != null)
                     {
-                        request.Content = new StringContent(postData, System.Text.Encoding.UTF8, "application/x-www-form-urlencoded");
+                        request.Content = new StringContent(
+                            postData,
+                            Encoding.UTF8,
+                            "application/x-www-form-urlencoded");
                     }
 
-                    var response = hc.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).Result;
+                    var response = hc.SendAsync(
+                        request,
+                        HttpCompletionOption.ResponseHeadersRead
+                    ).GetAwaiter().GetResult();
+
                     response.EnsureSuccessStatusCode();
 
-                    // If server returns Content-Length, support download progress reporting.
-                    if(response.Content.Headers.ContentLength != null)
+                    using (var stream = response.Content
+                        .ReadAsStreamAsync()
+                        .GetAwaiter().GetResult())
+                    using (var ms = new MemoryStream())
                     {
-                        int bytesDownloaded = 0;
-                        int length = (int)response.Content.Headers.ContentLength;
-                        data = new byte[length];
+                        var buffer = new byte[80 * 1024];
+                        int read;
+                        long total = response.Content.Headers.ContentLength ?? -1;
+                        int downloaded = 0;
 
-                        using (var stream = response.Content.ReadAsStreamAsync().Result)
+                        while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
                         {
-                            while (stream.CanRead)
+                            ms.Write(buffer, 0, read);
+                            downloaded += read;
+
+                            if (onUpdate != null && total > 0)
                             {
-                                bytesDownloaded += stream.Read(data, bytesDownloaded, Math.Min(80 * 1024, (int) length - bytesDownloaded));
-
-                                if (onUpdate != null)
-                                {
-                                    GameBase.Scheduler.Add(delegate
-                                    {
-                                        onUpdate?.Invoke(this, bytesDownloaded, (int)length);
-                                    });
-                                }
-
-                                if (bytesDownloaded == length)
-                                    break;
+                                int d = downloaded;
+                                int t = (int)total;
+                                GameBase.Scheduler.Add(() =>
+                                    onUpdate?.Invoke(this, d, t));
                             }
+
+                            if (AbortRequested)
+                                break;
                         }
-                    } else
-                    {
-                        data = response.Content.ReadAsByteArrayAsync().Result;
+
+                        data = ms.ToArray();
                     }
                 }
 
                 processFinishedRequest();
 #endif
             }
-            catch (ThreadAbortException)
-            {
-            }
+            catch (ThreadAbortException) { }
             catch (Exception e)
             {
                 error = e;
+                processFinishedRequest();
             }
         }
 
@@ -227,39 +228,26 @@ namespace osum.Libraries.NetLib
                 }
                 else result.Append(c);
             }
-
             return result.ToString();
         }
 
         public virtual void processFinishedRequest()
         {
             NetManager.ReportCompleted(this);
-
             if (AbortRequested) return;
 
-            GameBase.Scheduler.Add(delegate
-            {
-                onFinish?.Invoke(data, error);
-            });
+            GameBase.Scheduler.Add(() =>
+                onFinish?.Invoke(data, error));
         }
 
-        public override bool Valid()
-        {
-            return true;
-        }
+        public override bool Valid() => true;
 
         public override void OnException(Exception e)
         {
-#if !DIST
-            Console.WriteLine("net error:" + e);
-#endif
+            error = e;
             processFinishedRequest();
         }
 
-        #region Nested type: RequestCompleteHandler
-
         public delegate void RequestCompleteHandler(byte[] data, Exception e);
-
-        #endregion
     }
 }

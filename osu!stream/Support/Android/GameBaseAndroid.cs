@@ -15,6 +15,8 @@ namespace osum.Support.Android
     {
         private readonly Activity activity;
 
+        public Activity Activity => activity;
+
         public static bool IsInitialized;
         public GameWindowAndroid Window;
 

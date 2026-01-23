@@ -50,7 +50,7 @@
     </AndroidTlsProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
+    <DebugSymbols>false</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -60,19 +60,22 @@
     <AndroidManagedSymbols>true</AndroidManagedSymbols>
     <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
-    <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <AotAssemblies>false</AotAssemblies>
     <EnableLLVM>false</EnableLLVM>
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
     <BundleAssemblies>false</BundleAssemblies>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
-    <AndroidPackageFormat>aab</AndroidPackageFormat>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidUseAapt2>true</AndroidUseAapt2>
     <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <AndroidTlsProvider>
     </AndroidTlsProvider>
+    <AndroidKeyStore>false</AndroidKeyStore>
+    <MandroidI18n />
+    <AndroidDexTool>d8</AndroidDexTool>
   </PropertyGroup>
   <ItemGroup>
     <!--    <Reference Include="Bass.Net.Android">-->
@@ -105,7 +108,7 @@
     <AndroidNativeLibrary Include="Libraries\Android\x86\libbass_aac.so" />
     <AndroidNativeLibrary Include="Libraries\Android\x86_64\libbass.so" />
     <AndroidNativeLibrary Include="Libraries\Android\x86_64\libbass_aac.so" />
-    <None Include="Properties\AndroidManifest.xml" />
+    <None Include="Properties\AndroidManifest.axml" />
     <AndroidAsset Include="Skins\Default\Futura-CondensedExtraBold.ttf" />
     <AndroidAsset Include="Skins\Default\Futura-Medium.ttf" />
   </ItemGroup>
@@ -229,6 +232,7 @@
     <Compile Include="GameModes\Play\Components\GuideFinger.cs" />
     <Compile Include="GameModes\Options\Options.cs" />
     <Compile Include="GameModes\Options\Credits.cs" />
+    <Compile Include="UI\ConnectInputNotificationAndroid.cs" />
     <Compile Include="UI\Notification.cs" />
     <Compile Include="Helpers\pConfigManager.cs" />
     <Compile Include="Graphics\Sprites\SpriteManagerDraggable.cs" />
@@ -245,7 +249,6 @@
     <Compile Include="GameModes\VideoPreview.cs" />
     <Compile Include="GameModes\Play\PreviewPlayer.cs" />
     <Compile Include="GameplayElements\HitObjectManagerPreview.cs" />
-    <Compile Include="UI\TextInputNotification.cs" />
     <Compile Include="Support\CrashHandler.cs" />
     <Compile Include="GameModes\MainMenu\MainMenu_BeatMatching.cs" />
     <Compile Include="Audio\ISoundEffectPlayer.cs" />
@@ -346,6 +349,9 @@
     <PackageReference Include="Xamarin.Legacy.OpenTK">
       <Version>1.0.2</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\dialog_connect.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
