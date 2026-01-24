@@ -263,6 +263,8 @@ namespace osum.GameModes.Options
         {
 #if iOS
             int deviceType = (int)osum.Support.iPhone.HardwareDetection.Version;
+#elif ANDROID
+            string deviceType = global::Android.OS.Build.Model;
 #else
             int deviceType = 0;
 #endif

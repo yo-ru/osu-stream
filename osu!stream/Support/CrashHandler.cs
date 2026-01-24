@@ -44,6 +44,13 @@ namespace osum.Support
 #if iOS
             contents += "&device=" + (int)osum.Support.iPhone.HardwareDetection.Version;
             contents += "&version=" + Foundation.NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleVersion").ToString();
+#elif ANDROID
+            contents += "&device=" + global::Android.OS.Build.Model;
+            contents += "&version=" + global::Android.App.Application.Context
+                .PackageManager
+                .GetPackageInfo(
+                    global::Android.App.Application.Context.PackageName, 0
+                ).VersionName;
 #endif
             StringNetRequest nr = new StringNetRequest("https://osustream.its.moe/admin/crash", "POST", "exception=" + contents);
             NetManager.AddRequest(nr);

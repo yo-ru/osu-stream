@@ -1,12 +1,14 @@
-﻿using System;
-using System.IO;
-using Android.App;
+﻿using Android.App;
+using IntelliJ.Lang.Annotations;
 using osum.AssetManager;
 using osum.Audio;
 using osum.GameModes;
 using osum.GameModes.SongSelect;
+using osum.Helpers;
 using osum.Input;
 using osum.Input.Sources;
+using System;
+using System.IO;
 using Xamarin.Essentials;
 
 namespace osum.Support.Android
@@ -96,5 +98,50 @@ namespace osum.Support.Android
         }
 
         public override string PathConfig => $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}/";
+
+        string identifier;
+        public override string DeviceIdentifier
+        {
+            get
+            {
+                if (identifier == null)
+                {
+#if SIMULATOR
+            identifier = base.DeviceIdentifier;
+#else
+                    try
+                    {
+                        const string prefsName = "osustream_prefs";
+                        const string keyName = "device_identifier";
+
+                        var context = global::Android.App.Application.Context;
+                        var prefs = context.GetSharedPreferences(
+                            prefsName,
+                            global::Android.Content.FileCreationMode.Private
+                        );
+
+                        identifier = prefs.GetString(keyName, null);
+
+                        if (string.IsNullOrEmpty(identifier))
+                        {
+                            // Generate once
+                            identifier = Guid.NewGuid().ToString();
+
+                            var editor = prefs.Edit();
+                            editor.PutString(keyName, identifier);
+                            editor.Commit();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        identifier = Guid.NewGuid().ToString();
+                    }
+#endif
+                }
+
+                return CryptoHelper.GetMd5String(identifier);
+            }
+        }
     }
 }
