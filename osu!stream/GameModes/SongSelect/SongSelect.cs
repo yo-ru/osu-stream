@@ -300,15 +300,12 @@ namespace osum.GameModes.SongSelect
                 {
                     if (!success)
                     {
-                        GameBase.Notify("No songs imported.");
+                        GameBase.Notify("No song(s) imported.");
                         return;
                     }
 
-                    GameBase.Notify("Songs imported!", delegate
-                    {
-                        ForceBeatmapRefresh = true;
-                        Director.ChangeMode(OsuMode.SongSelect);
-                    });
+                    ForceBeatmapRefresh = true;
+                    Director.ChangeMode(OsuMode.SongSelect);
                 });
 #elif iOS
                 GameBase.Notify("Importing custom songs is supported on iOS via iTunes/Finder.");
