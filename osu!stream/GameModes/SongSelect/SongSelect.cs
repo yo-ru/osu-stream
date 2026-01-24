@@ -312,14 +312,16 @@ namespace osum.GameModes.SongSelect
                 });
 #elif iOS
                 GameBase.Notify("Importing custom songs is supported on iOS via iTunes/Finder.");
+#else
+                GameBase.Notify("Importing custom songs by dropping them into \"osu!stream\\Beatmaps\" folder.);
 #endif
             }, index++)
             {
-                NewSection = true,
+                NewSection = false,
                 s_Text =
     {
-        Text = "Import Custom Songs",
-        Colour = Color4.SkyBlue
+        Text = "Import custom songs...",
+        Colour = Color4.White
     }
             };
 
