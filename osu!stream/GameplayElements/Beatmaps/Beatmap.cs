@@ -65,11 +65,7 @@ namespace osum.GameplayElements.Beatmaps
             set { package = value; }
         }
 
-#if DIST || M4A
         public string AudioFilename = "audio.m4a";
-#else
-        public string AudioFilename => "audio.m4a";
-#endif
 
         public string PackageIdentifier => Artist + Title;
 
