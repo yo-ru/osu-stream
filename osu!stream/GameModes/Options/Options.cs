@@ -233,7 +233,7 @@ namespace osum.GameModes.Options
             });
 
 #elif ANDROID
-            new ConnectInputNotification(((GameBaseAndroid)GameBase.Instance).Activity, (bool isOk, string username, string password) =>
+            new ConnectInputNotification(((GameBaseAndroid)GameBase.Instance).Activity, (isOk, username, password) =>
             {
                 if (isOk)
                 {

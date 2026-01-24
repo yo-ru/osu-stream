@@ -335,16 +335,10 @@ namespace osum
                 throw new Exception("No input sources registered");
 
             BackgroundAudioPlayer music = InitializeBackgroundAudio();
-            if (music == null)
-                throw new Exception("No background audio manager registered");
-
-            Clock.AudioTimeSource = music;
+            Clock.AudioTimeSource = music ?? throw new Exception("No background audio manager registered");
             Components.Add(music);
 
-            SoundEffectPlayer effect = InitializeSoundEffects();
-            if (effect == null)
-                throw new Exception("No sound effect player registered");
-
+            SoundEffectPlayer effect = InitializeSoundEffects() ?? throw new Exception("No sound effect player registered");
             Components.Add(effect);
 
             AudioEngine.Initialize(effect, music);

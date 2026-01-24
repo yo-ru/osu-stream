@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using OpenTK;
 using OpenTK.Graphics;
 using osum.Audio;
@@ -70,30 +71,23 @@ namespace osum.GameModes.Results
 
             rankingBackground =
                 new pSprite(TextureManager.Load(OsuTexture.ranking_background), FieldTypes.StandardSnapCentreLeft, OriginTypes.CentreLeft,
-                    ClockTypes.Mode, Vector2.Zero, 0.4f, true, Color4.White);
-            rankingBackground.Position = new Vector2(5, -20);
-            rankingBackground.ScaleScalar = 0.85f;
+                    ClockTypes.Mode, Vector2.Zero, 0.4f, true, Color4.White)
+                {
+                    Position = new Vector2(5, -20),
+                    ScaleScalar = 0.85f
+                };
             layer2.Add(rankingBackground);
 
             pText artist = new pText(Player.Beatmap.Artist, 30, new Vector2(10, fill_height + 5), 0.5f, true, Color4.OrangeRed) { TextShadow = true };
             layer1.Add(artist);
             pText title = new pText(Player.Beatmap.Title, 30, new Vector2(16 + artist.MeasureText().X / GameBase.BaseToNativeRatioAligned, fill_height + 5), 0.5f, true, Color4.White) { TextShadow = true };
             layer1.Add(title);
-
-            pTexture modeTex;
-            switch (Player.Difficulty)
+            pTexture modeTex = Player.Difficulty switch
             {
-                case Difficulty.Easy:
-                    modeTex = TextureManager.Load(OsuTexture.songselect_mode_easy);
-                    break;
-                case Difficulty.Expert:
-                    modeTex = TextureManager.Load(OsuTexture.songselect_mode_expert);
-                    break;
-                default:
-                    modeTex = TextureManager.Load(OsuTexture.songselect_mode_stream);
-                    break;
-            }
-
+                Difficulty.Easy => TextureManager.Load(OsuTexture.songselect_mode_easy),
+                Difficulty.Expert => TextureManager.Load(OsuTexture.songselect_mode_expert),
+                _ => TextureManager.Load(OsuTexture.songselect_mode_stream),
+            };
             modeGraphic = new pSprite(modeTex, FieldTypes.StandardSnapRight, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(5, 7), 0.45f, true, Color4.White) { ScaleScalar = 0.5f };
             layer1.Add(modeGraphic);
 
@@ -101,7 +95,7 @@ namespace osum.GameModes.Results
 
             layer1.Add(rankGraphic);
 
-            initializeTransition();
+            InitializeTransition();
 
             //Scoring
             {
@@ -117,8 +111,10 @@ namespace osum.GameModes.Results
 
                 v_offset += 30;
 
-                pSpriteText count = new pSpriteText("000,000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255));
-                count.TextConstantSpacing = true;
+                pSpriteText count = new pSpriteText("000,000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255))
+                {
+                    TextConstantSpacing = true
+                };
                 countTotalScore = count;
 
                 resultSprites.Add(count);
@@ -134,10 +130,12 @@ namespace osum.GameModes.Results
                 };
                 resultSprites.Add(heading);
 
-                count = new pSpriteText("000000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255));
-                count.TextConstantSpacing = true;
-                count.ZeroAlpha = 0.5f;
-                count.ScaleScalar = 0.7f;
+                count = new pSpriteText("000000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255))
+                {
+                    TextConstantSpacing = true,
+                    ZeroAlpha = 0.5f,
+                    ScaleScalar = 0.7f
+                };
                 resultSprites.Add(count);
 
                 countScoreHit = count;
@@ -153,10 +151,12 @@ namespace osum.GameModes.Results
                 };
                 resultSprites.Add(heading);
 
-                count = new pSpriteText("000000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255));
-                count.TextConstantSpacing = true;
-                count.ZeroAlpha = 0.5f;
-                count.ScaleScalar = 0.7f;
+                count = new pSpriteText("000000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255))
+                {
+                    TextConstantSpacing = true,
+                    ZeroAlpha = 0.5f,
+                    ScaleScalar = 0.7f
+                };
                 resultSprites.Add(count);
 
                 countScoreCombo = count;
@@ -171,10 +171,12 @@ namespace osum.GameModes.Results
                 };
                 resultSprites.Add(heading);
 
-                count = new pSpriteText("000000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255));
-                count.TextConstantSpacing = true;
-                count.ZeroAlpha = 0.5f;
-                count.ScaleScalar = 0.7f;
+                count = new pSpriteText("000000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255))
+                {
+                    TextConstantSpacing = true,
+                    ZeroAlpha = 0.5f,
+                    ScaleScalar = 0.7f
+                };
                 resultSprites.Add(count);
 
                 countScoreAccuracy = count;
@@ -189,10 +191,12 @@ namespace osum.GameModes.Results
                 };
                 resultSprites.Add(heading);
 
-                count = new pSpriteText("000000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255));
-                count.TextConstantSpacing = true;
-                count.ZeroAlpha = 0.5f;
-                count.ScaleScalar = 0.7f;
+                count = new pSpriteText("000000", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(255, 166, 0, 255))
+                {
+                    TextConstantSpacing = true,
+                    ZeroAlpha = 0.5f,
+                    ScaleScalar = 0.7f
+                };
                 resultSprites.Add(count);
 
                 countScoreSpin = count;
@@ -209,8 +213,10 @@ namespace osum.GameModes.Results
 
                 v_offset += 34;
 
-                count = new pSpriteText((RankableScore.accuracy * 100).ToString("00.00", GameBase.nfi) + "%", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(0, 180, 227, 255));
-                count.ScaleScalar = 0.7f;
+                count = new pSpriteText((RankableScore.accuracy * 100).ToString("00.00", GameBase.nfi) + "%", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(0, 180, 227, 255))
+                {
+                    ScaleScalar = 0.7f
+                };
                 resultSprites.Add(count);
 
                 v_offset += 20;
@@ -225,8 +231,10 @@ namespace osum.GameModes.Results
 
                 v_offset += 34;
 
-                count = new pSpriteText(RankableScore.maxCombo.ToString("#,0", GameBase.nfi) + "x", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(0, 180, 227, 255));
-                count.ScaleScalar = 0.7f;
+                count = new pSpriteText(RankableScore.maxCombo.ToString("#,0", GameBase.nfi) + "x", "score", 0, FieldTypes.StandardSnapCentreLeft, OriginTypes.TopRight, ClockTypes.Mode, new Vector2(445, v_offset), 0.9f, true, new Color4(0, 180, 227, 255))
+                {
+                    ScaleScalar = 0.7f
+                };
                 resultSprites.Add(count);
             }
 
@@ -272,12 +280,16 @@ namespace osum.GameModes.Results
 
             layer2.Add(resultSprites);
 
-            s_ButtonBack = new BackButton(returnToSelect, false);
-            s_ButtonBack.Alpha = 0;
+            s_ButtonBack = new BackButton(ReturnToSelect, false)
+            {
+                Alpha = 0
+            };
             topMostLayer.Add(s_ButtonBack);
 
-            s_Footer = new pSprite(TextureManager.Load(OsuTexture.ranking_footer), FieldTypes.StandardSnapBottomRight, OriginTypes.BottomRight, ClockTypes.Mode, new Vector2(0, -100), 0.98f, true, Color4.White);
-            s_Footer.Alpha = 0;
+            s_Footer = new pSprite(TextureManager.Load(OsuTexture.ranking_footer), FieldTypes.StandardSnapBottomRight, OriginTypes.BottomRight, ClockTypes.Mode, new Vector2(0, -100), 0.98f, true, Color4.White)
+            {
+                Alpha = 0
+            };
             s_Footer.OnClick += delegate
             {
                 Director.ChangeMode(OsuMode.Play);
@@ -316,7 +328,7 @@ namespace osum.GameModes.Results
                 };
                 layer1.Add(heading);
 
-                doSubmission();
+                DoSubmission();
             }
             else
             {
@@ -335,14 +347,14 @@ namespace osum.GameModes.Results
                 }
 
                 //displaying a previous high score (or online high score)
-                finishDisplaying();
+                FinishDisplaying();
             }
 
             Director.OnTransitionEnded += Director_OnTransitionEnded;
             InputManager.OnMove += HandleInputManagerOnMove;
         }
 
-        private void doSubmission()
+        private void DoSubmission()
         {
             int deviceType = 0;
 
@@ -601,17 +613,17 @@ namespace osum.GameModes.Results
             time += increment;
 
             if (!cameFromSongSelect)
-                GameBase.Scheduler.Add(finishDisplaying, time);
+                GameBase.Scheduler.Add(FinishDisplaying, time);
         }
 
-        private void finishDisplaying()
+        private void FinishDisplaying()
         {
             if (unlockedExpert)
             {
                 GameBase.Notify(new Notification(LocalisationManager.GetString(OsuString.Congratulations), LocalisationManager.GetString(OsuString.UnlockedExpert), NotificationStyle.Okay, delegate
                 {
                     unlockedExpert = false; //reset and run again.
-                    finishDisplaying();
+                    FinishDisplaying();
                 }));
                 return;
             }
@@ -620,10 +632,10 @@ namespace osum.GameModes.Results
                 GameBase.Notify(rankingNotification);
             finishedDisplaying = true;
 
-            showNavigation();
+            ShowNavigation();
         }
 
-        private void showNavigation()
+        private void ShowNavigation()
         {
             if (s_Footer.Alpha != 1)
             {
@@ -645,7 +657,7 @@ namespace osum.GameModes.Results
         private pSpriteText count0;
         private bool isPersonalBest;
 
-        private void initializeTransition()
+        private void InitializeTransition()
         {
             pDrawable fill = pSprite.FullscreenWhitePixel;
             fill.Scale.X *= (float)RankableScore.count300 / RankableScore.totalHits + 0.001f;
@@ -657,7 +669,7 @@ namespace osum.GameModes.Results
             fillSprites.Add(fill);
 
             fill = pSprite.FullscreenWhitePixel;
-            fill.Position.X = fillSprites[fillSprites.Count - 1].Position.X + fillSprites[fillSprites.Count - 1].Scale.X;
+            fill.Position.X = fillSprites[^1].Position.X + fillSprites[^1].Scale.X;
             fill.Scale.X *= (float)RankableScore.count100 / RankableScore.totalHits + 0.001f;
             fill.Scale.Y = fill_height;
             fill.DrawDepth = 0.9f;
@@ -667,7 +679,7 @@ namespace osum.GameModes.Results
             fillSprites.Add(fill);
 
             fill = pSprite.FullscreenWhitePixel;
-            fill.Position.X = fillSprites[fillSprites.Count - 1].Position.X + fillSprites[fillSprites.Count - 1].Scale.X;
+            fill.Position.X = fillSprites[^1].Position.X + fillSprites[^1].Scale.X;
             fill.Scale.X *= (float)RankableScore.count50 / RankableScore.totalHits + 0.001f;
             fill.Scale.Y = fill_height;
             fill.DrawDepth = 0.9f;
@@ -677,7 +689,7 @@ namespace osum.GameModes.Results
             fillSprites.Add(fill);
 
             fill = pSprite.FullscreenWhitePixel;
-            fill.Position.X = fillSprites[fillSprites.Count - 1].Position.X + fillSprites[fillSprites.Count - 1].Scale.X;
+            fill.Position.X = fillSprites[^1].Position.X + fillSprites[^1].Scale.X;
             fill.Scale.X *= (float)RankableScore.countMiss / RankableScore.totalHits + 0.001f;
             fill.Scale.Y = fill_height;
             fill.DrawDepth = 0.9f;
@@ -689,7 +701,7 @@ namespace osum.GameModes.Results
             spriteManager.Add(fillSprites);
         }
 
-        private void returnToSelect(object sender, EventArgs args)
+        private void ReturnToSelect(object sender, EventArgs args)
         {
             Director.ChangeMode(OsuMode.SongSelect);
         }
@@ -742,7 +754,7 @@ namespace osum.GameModes.Results
                 }
 
                 fallingSprites.RemoveAll(p => p.Transformations.Count == 0);
-                foreach (pSprite p in fallingSprites)
+                foreach (pSprite p in fallingSprites.Cast<pSprite>())
                 {
                     p.Position.Y += p.TagNumeric * Clock.ElapsedRatioToSixty * 0.003f * (float)Clock.ElapsedMilliseconds;
                     p.TagNumeric++;
@@ -762,8 +774,10 @@ namespace osum.GameModes.Results
 
                     if (tex != null)
                     {
-                        pSprite f = new pSprite(tex, FieldTypes.Standard, OriginTypes.TopLeft, ClockTypes.Mode, new Vector2(pos, fillSprites[0].Scale.Y - 30), 0.3f, false, Color4.White);
-                        f.ScaleScalar = 0.2f;
+                        pSprite f = new pSprite(tex, FieldTypes.Standard, OriginTypes.TopLeft, ClockTypes.Mode, new Vector2(pos, fillSprites[0].Scale.Y - 30), 0.3f, false, Color4.White)
+                        {
+                            ScaleScalar = 0.2f
+                        };
                         f.Transform(new TransformationF(TransformationType.Fade, 0, 1, Clock.ModeTime, Clock.ModeTime + 150));
                         f.Transform(new TransformationF(TransformationType.Fade, 1, 0, Clock.ModeTime + 250, Clock.ModeTime + 1000 + (int)(GameBase.Random.NextDouble() * 1000)));
                         fallingSprites.Add(f);
