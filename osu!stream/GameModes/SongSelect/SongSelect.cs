@@ -311,13 +311,7 @@ namespace osum.GameModes.SongSelect
                     });
                 });
 #elif iOS
-                GameBase.Notify(
-                    "To import custom beatmaps:\n\n" +
-                    "• Open the Files app\n" +
-                    "• Browse to osu!stream\n" +
-                    "• Copy .osz2 / .osf2 files into the app folder\n\n" +
-                    "Beatmaps will appear automatically."
-                );
+                GameBase.Notify("Importing custom songs is supported on iOS via iTunes/Finder.");
 #endif
             }, index++)
             {
