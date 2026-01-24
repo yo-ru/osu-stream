@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using OpenTK;
 using OpenTK.Graphics;
 using osum.Audio;
@@ -14,6 +10,11 @@ using osum.Helpers;
 using osum.Input;
 using osum.Input.Sources;
 using osum.Localisation;
+using osum.UI;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace osum.GameModes.SongSelect
 {
@@ -291,6 +292,46 @@ namespace osum.GameModes.SongSelect
             panelDownloadMore.s_Text.Offset.Y += 16;
             panels.Add(panelDownloadMore);
             topmostSpriteManager.Add(panelDownloadMore);
+
+            BeatmapPanel panelImport = new BeatmapPanel(null, delegate
+            {
+#if ANDROID
+                new BeatmapImportAndroid(success =>
+                {
+                    if (!success)
+                    {
+                        GameBase.Notify("No songs imported.");
+                        return;
+                    }
+
+                    GameBase.Notify("Songs imported!", delegate
+                    {
+                        ForceBeatmapRefresh = true;
+                        Director.ChangeMode(OsuMode.SongSelect);
+                    });
+                });
+#elif iOS
+                GameBase.Notify(
+                    "To import custom beatmaps:\n\n" +
+                    "• Open the Files app\n" +
+                    "• Browse to osu!stream\n" +
+                    "• Copy .osz2 / .osf2 files into the app folder\n\n" +
+                    "Beatmaps will appear automatically."
+                );
+#endif
+            }, index++)
+            {
+                NewSection = true,
+                s_Text =
+    {
+        Text = "Import Custom Songs",
+        Colour = Color4.SkyBlue
+    }
+            };
+
+            panelImport.s_Text.Offset.Y += 16;
+            panels.Add(panelImport);
+            topmostSpriteManager.Add(panelImport);
         }
 
         private void panelSelected(object sender, EventArgs args)

@@ -108,7 +108,6 @@
     <AndroidNativeLibrary Include="Libraries\Android\x86\libbass_aac.so" />
     <AndroidNativeLibrary Include="Libraries\Android\x86_64\libbass.so" />
     <AndroidNativeLibrary Include="Libraries\Android\x86_64\libbass_aac.so" />
-    <None Include="Properties\AndroidManifest.axml" />
     <AndroidAsset Include="Skins\Default\Futura-CondensedExtraBold.ttf" />
     <AndroidAsset Include="Skins\Default\Futura-Medium.ttf" />
   </ItemGroup>
@@ -232,6 +231,7 @@
     <Compile Include="GameModes\Play\Components\GuideFinger.cs" />
     <Compile Include="GameModes\Options\Options.cs" />
     <Compile Include="GameModes\Options\Credits.cs" />
+    <Compile Include="UI\BeatmapImportAndroid.cs" />
     <Compile Include="UI\ConnectInputNotificationAndroid.cs" />
     <Compile Include="UI\Notification.cs" />
     <Compile Include="Helpers\pConfigManager.cs" />
@@ -352,6 +352,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\dialog_connect.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
