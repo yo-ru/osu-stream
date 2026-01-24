@@ -352,7 +352,9 @@ namespace osum.GameModes.Results
                 deviceType = (int)osum.Support.iPhone.HardwareDetection.Version;
 #endif
                 string hash = GameBase.Config.GetValue<string>("hash", null);
-                if (hash == null) return; // TODO: check hash.
+
+                // player isn't logged in
+                if (hash == null) return;
 
                 Console.WriteLine(Path.GetFileName(Player.Beatmap.ContainerFilename));
 

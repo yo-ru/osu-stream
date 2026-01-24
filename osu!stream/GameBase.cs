@@ -353,46 +353,11 @@ namespace osum
             DebugOverlay.Update();
 #endif
 
-#if false
-            //benchmark
-
-            string path = SongSelectMode.BeatmapPath + "/Aperture Science Psychoacoustics Laboratory - Want You Gone (Larto).osz2";
-            Console.WriteLine(path);
-
-            Player.Beatmap = new osum.GameplayElements.Beatmaps.Beatmap(path);
-            Player.Difficulty = osum.GameplayElements.Difficulty.Expert;
-            Player.Autoplay = true;
-
-            Director.ChangeMode(OsuMode.Play, null);
-#elif false
-            //results screen testing
-
-            Player.Beatmap = new GameplayElements.Beatmaps.Beatmap("Beatmaps/Lix - Phantom Ensemble -Ark Trance mix- (Dyaems).osf2");
-            Player.Difficulty = GameplayElements.Difficulty.Normal;
-
-
-            Results.RankableScore = new GameplayElements.Scoring.Score()
-            {
-                count100 = 55,
-                count50 = 128,
-                count300 = 387,
-                countMiss = 0,
-                date = DateTime.Now,
-                spinnerBonusScore = 1500,
-                comboBonusScore = 578420,
-                hitScore = 100000 - 578420,
-                maxCombo = 198
-            };
-
-            Director.ChangeMode(OsuMode.Results, null);
-#else
-            //Load the main menu initially.
 #if MONO && DEBUG
             if (Director.PendingOsuMode == OsuMode.Unknown)
                 Director.ChangeMode(startupMode != OsuMode.Unknown ? startupMode : OsuMode.MainMenu, null);
 #else
             Director.ChangeMode(OsuMode.MainMenu, null);
-#endif
 #endif
 
             Clock.Start();
